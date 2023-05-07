@@ -16,10 +16,27 @@ public class Idle : PlayerBaseState
 
     public override void UpdateState(PlayerStateManager movement)
     {
+        if (movement.controls.Player.Sprint.IsPressed())
+        {
+            movement.SwitchState(movement.sprint);
+        }
+
         if (movement.controls.Player.Movment.IsPressed())
         {
             movement.SwitchState(movement.walk);
         }
+
+        if (movement.controls.Player.Crouch.IsPressed())
+        {
+            movement.SwitchState(movement.crouch);
+        }
+
+        if (movement.controls.Player.Jump.WasPressedThisFrame())
+        {
+            movement.SwitchState(movement.jump);
+        }
+
+
     }
 
 }

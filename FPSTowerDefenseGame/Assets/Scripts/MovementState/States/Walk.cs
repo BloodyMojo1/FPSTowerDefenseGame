@@ -6,12 +6,17 @@ public class Walk : PlayerBaseState
 {
     public override void EnterState(PlayerStateManager movement)
     {
-        if (movement.currentSpeed == 0) movement.currentSpeed = movement.baseSpeed;
+        
     }
 
     public override void UpdateState(PlayerStateManager movement)
     {
-        if(!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
+        if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
+        if (movement.controls.Player.Crouch.IsPressed()) ExitState(movement, movement.crouch);
+        else if (movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.sprint);
+        else if(!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
+
+        if (movement.currentSpeed != movement.baseSpeed) movement.currentSpeed = movement.baseSpeed;
     }
 
     void ExitState(PlayerStateManager movement, PlayerBaseState state)

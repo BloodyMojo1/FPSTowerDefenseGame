@@ -6,16 +6,25 @@ public class PlayerStateManager : MonoBehaviour
 
     public Idle idle = new Idle();
     public Walk walk = new Walk();
+    public Sprint sprint = new Sprint();
+    public Jump jump = new Jump();
+    public Crouch crouch = new Crouch();
 
     [Header("Gneral/Base Character Variables")]
 
     [SerializeField] private CharacterController controller;
+    [SerializeField] private Transform fpsCam;
 
     public InputMaster controls;
 
     public float baseSpeed = 12f;
+    public float baseHeight = 1f;
+
 
     [SerializeField, Range(0, 1)] private float airSpeed = 0.5f;
+
+    [HideInInspector]
+    public float currentHeight;
 
     [HideInInspector]
     public float currentSpeed;
@@ -26,13 +35,39 @@ public class PlayerStateManager : MonoBehaviour
     [HideInInspector]
     public Vector3 velocity;
 
+    [Header("Crouch Variables")]
+
+    [SerializeField] private float heightSpeed = 1f;
+
+    public float crouchSpeed = 6f;
+    public float crouchHeight = 0.5f;
+
+    [HideInInspector]
+    public float targetHeight;
+    [HideInInspector]
+    public bool isCrouching;
+
+    [Header("Sprint Variables")]
+
+    public float sprintSpeed = 24f;
+
+    [HideInInspector]
+    public bool isSprinting;
+
+    [Header("Jump Variables")]
+    
+    public float highJumpForce = 3f;
+
+    [HideInInspector]
+    public float currentJumpForce;
+
     [Header("Gravity")]
 
     public Transform groundCheck;
 
     public float gravity = -9.81f;
     public float fallMultiplier = 2.5f;
-    private float groundRadius = 0.6f;
+    private float groundRadius = 0.5f;
 
     [SerializeField] private float groundDistance = 0.4f;
     [SerializeField] private LayerMask groundMask;
@@ -40,10 +75,23 @@ public class PlayerStateManager : MonoBehaviour
     [HideInInspector]
     public bool isGrounded;
 
+    [Header("Ceiling Checker")]
+
+    public Transform ceilingCheck;
+
+    private float ceilingRadius = 0.5f;
+
+    [SerializeField] private float ceilingDistance = 0.4f;
+
+    [HideInInspector]
+    public bool isCeilingAbove;
+
     private void Awake()
     {
         controls = new InputMaster();
         currentSpeed = baseSpeed;
+        currentHeight = baseHeight;
+        targetHeight = currentHeight;
     }
 
 
@@ -58,9 +106,24 @@ public class PlayerStateManager : MonoBehaviour
     {
         currentState.UpdateState(this);
 
+        CrouchSpeed();
         IsGrounded();
+        IsCeilingAbove();
         Movement();
         Debug.Log(currentState);
+
+        //Keeps players grounded when crouching, that way player dont float up when they crouch
+        if(currentHeight != targetHeight)
+        {
+            currentHeight = Mathf.MoveTowards(currentHeight, targetHeight, Time.deltaTime * heightSpeed);
+            float center = currentHeight / 2;
+            controller.height = currentHeight;
+            controller.center = new Vector3(0, center, 0);
+
+            var camPos = fpsCam.transform.position;
+            camPos.y = transform.TransformPoint(new Vector3(0f, controller.height - 0.2f, 0f)).y;
+            fpsCam.transform.position = camPos;
+        }
     }
 
     public void SwitchState(PlayerBaseState state)
@@ -97,6 +160,38 @@ public class PlayerStateManager : MonoBehaviour
         controller.Move(velocity * Time.deltaTime); //Applies the gravity to the player controller
     }
 
+    /// <summary>
+    /// Like graivty it just check if something if about your head.
+    /// </summary>
+    private void IsCeilingAbove()
+    {
+        isCeilingAbove = Physics.CheckSphere(ceilingCheck.position + Vector3.up * ceilingDistance, ceilingRadius, groundMask);
+
+        if(isCrouching == false)
+        {
+            if (isCeilingAbove)
+            {
+                targetHeight = currentHeight;
+            }
+            else targetHeight = baseHeight;
+        }
+    }
+
+    private void CrouchSpeed()
+    {
+        if (isSprinting == true) return;
+
+        if(isGrounded == true)
+        {
+            //Following 4 lines is a map range, this controls people speed if they are half crouched without pressing crouch
+            //Can also be used for damage drop for nades and bullets.
+            float aValue = controller.height;
+            float normal = Mathf.InverseLerp(crouchHeight, baseHeight, aValue);
+            float bvalue = Mathf.Lerp(crouchSpeed, baseSpeed, normal);
+            currentSpeed = bvalue;
+        }
+    }
+
     private void OnEnable()
     {
         controls.Enable();
@@ -105,5 +200,11 @@ public class PlayerStateManager : MonoBehaviour
     private void OnDisable()
     {
         controls.Disable();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(groundCheck.position + Vector3.up * groundDistance, groundRadius);
+        Gizmos.DrawWireSphere(ceilingCheck.position + Vector3.up * ceilingDistance, groundRadius);
     }
 }
