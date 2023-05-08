@@ -12,6 +12,8 @@ public class PlayerStateManager : MonoBehaviour
 
     [Header("Gneral/Base Character Variables")]
 
+    public CooldownSystem cooldownSystem = null;
+
     [SerializeField] private CharacterController controller;
     [SerializeField] private Transform fpsCam;
 
@@ -55,8 +57,13 @@ public class PlayerStateManager : MonoBehaviour
     public bool isSprinting;
 
     [Header("Jump Variables")]
-    
-    public float highJumpForce = 3f;
+
+    public int jumpId;
+    public float JumpcooldownDuration = 5;
+
+    public float maxJumpForce = 3f;
+    public float minJumpForce = 0.5f;
+    public float jumpForceReduction = 0.1f;
 
     [HideInInspector]
     public float currentJumpForce;
@@ -110,16 +117,20 @@ public class PlayerStateManager : MonoBehaviour
         IsGrounded();
         IsCeilingAbove();
         Movement();
-        Debug.Log(currentState);
 
-        //Keeps players grounded when crouching, that way player dont float up when they crouch
+        Debug.Log(currentState);
+        Debug.Log(currentSpeed);
+
+        //Moves character controller and FpsCam up and down for crouching
         if(currentHeight != targetHeight)
         {
-            currentHeight = Mathf.MoveTowards(currentHeight, targetHeight, Time.deltaTime * heightSpeed);
-            float center = currentHeight / 2;
-            controller.height = currentHeight;
-            controller.center = new Vector3(0, center, 0);
+            currentHeight = Mathf.MoveTowards(currentHeight, targetHeight, Time.deltaTime * heightSpeed); //Move slowly toward target height
+            float center = currentHeight / 2; //finds center of object
+            controller.height = currentHeight; //sets controler height
+            controller.center = new Vector3(0, center, 0); //creates new center point, so players feet stay on ground.
 
+
+            // moves the camera with the character controller 
             var camPos = fpsCam.transform.position;
             camPos.y = transform.TransformPoint(new Vector3(0f, controller.height - 0.2f, 0f)).y;
             fpsCam.transform.position = camPos;
@@ -131,7 +142,6 @@ public class PlayerStateManager : MonoBehaviour
         currentState = state;
         currentState.EnterState(this);
 
-        Debug.Log(currentSpeed);
     }
 
     private void Movement()
@@ -182,7 +192,7 @@ public class PlayerStateManager : MonoBehaviour
         if (isSprinting == true) return;
 
         if(isGrounded == true)
-        {
+        { 
             //Following 4 lines is a map range, this controls people speed if they are half crouched without pressing crouch
             //Can also be used for damage drop for nades and bullets.
             float aValue = controller.height;

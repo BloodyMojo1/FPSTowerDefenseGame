@@ -6,7 +6,7 @@ public class Sprint : PlayerBaseState
 {
     public override void EnterState(PlayerStateManager movement)
     {
-        movement.isSprinting = true;
+        
     }
 
     public override void UpdateState(PlayerStateManager movement)
@@ -16,9 +16,10 @@ public class Sprint : PlayerBaseState
         if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
         if(movement.controls.Player.Crouch.IsPressed()) ExitState(movement, movement.crouch);
 
-        if (movement.isGrounded == false) return;
+        movement.isSprinting = true;
 
-        if(movement.currentSpeed != movement.sprintSpeed)
+        //if (movement.isGrounded == false) return;
+        if (movement.currentSpeed != movement.sprintSpeed)
         {
             movement.currentSpeed = movement.sprintSpeed;
         }

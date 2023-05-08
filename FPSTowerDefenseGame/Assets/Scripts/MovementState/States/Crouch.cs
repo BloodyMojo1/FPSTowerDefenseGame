@@ -6,7 +6,8 @@ public class Crouch : PlayerBaseState
 {
     public override void EnterState(PlayerStateManager movement)
     {
-        if(movement.targetHeight != movement.crouchHeight)
+        //Set target height
+        if (movement.targetHeight != movement.crouchHeight)
         {
             movement.targetHeight = movement.crouchHeight;
         }
@@ -27,6 +28,8 @@ public class Crouch : PlayerBaseState
 
     void ExitState(PlayerStateManager movement, PlayerBaseState state)
     {
+        //Puts target height back to normal height
+
         if (movement.controls.Player.Crouch.WasReleasedThisFrame())
         {
             if (movement.targetHeight != movement.baseHeight) movement.targetHeight = movement.baseHeight;
