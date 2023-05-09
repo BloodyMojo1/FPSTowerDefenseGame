@@ -6,13 +6,16 @@ public class Crouch : PlayerBaseState
 {
     public override void EnterState(PlayerStateManager movement)
     {
+
+        movement.isCrouching = true;
+
         //Set target height
         if (movement.targetHeight != movement.crouchHeight)
         {
             movement.targetHeight = movement.crouchHeight;
         }
 
-        movement.isCrouching = true;
+
     }
 
     public override void UpdateState(PlayerStateManager movement)

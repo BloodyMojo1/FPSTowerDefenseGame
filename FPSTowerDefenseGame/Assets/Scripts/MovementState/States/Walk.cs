@@ -12,7 +12,7 @@ public class Walk : PlayerBaseState
     public override void UpdateState(PlayerStateManager movement)
     {
         if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
-        if (movement.controls.Player.Crouch.IsPressed()) ExitState(movement, movement.crouch);
+        if  (movement.controls.Player.Crouch.IsPressed()) ExitState(movement, movement.crouch);
         else if (movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.sprint);
         else if(!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
 

@@ -9,8 +9,9 @@ public class PlayerStateManager : MonoBehaviour
     public Sprint sprint = new Sprint();
     public Jump jump = new Jump();
     public Crouch crouch = new Crouch();
+    public Sliding sliding = new Sliding();
 
-    [Header("Gneral/Base Character Variables")]
+    [Header("General/Base Character Variables")]
 
     public CooldownSystem cooldownSystem = null;
 
@@ -37,7 +38,7 @@ public class PlayerStateManager : MonoBehaviour
     [HideInInspector]
     public Vector3 velocity;
 
-    [Header("Crouch Variables")]
+    [Header("Crouch Variables Parameters")]
 
     [SerializeField] private float heightSpeed = 1f;
 
@@ -49,14 +50,14 @@ public class PlayerStateManager : MonoBehaviour
     [HideInInspector]
     public bool isCrouching;
 
-    [Header("Sprint Variables")]
+    [Header("Sprint Parameters")]
 
     public float sprintSpeed = 24f;
 
     [HideInInspector]
     public bool isSprinting;
 
-    [Header("Jump Variables")]
+    [Header("Jump Parameters")]
 
     public int jumpId;
     public float JumpcooldownDuration = 5;
@@ -67,6 +68,15 @@ public class PlayerStateManager : MonoBehaviour
 
     [HideInInspector]
     public float currentJumpForce;
+
+    [Header("Sliding Parameters")]
+
+
+    public bool isSliding;
+    public int slideid;
+    public float aditionalSlidingSpeed = 6f;
+    public float slidingDistance = 5f;
+
 
     [Header("Gravity")]
 
@@ -86,7 +96,7 @@ public class PlayerStateManager : MonoBehaviour
 
     public Transform ceilingCheck;
 
-    private float ceilingRadius = 0.5f;
+    [SerializeField] private float ceilingRadius = 0.5f;
 
     [SerializeField] private float ceilingDistance = 0.4f;
 
@@ -118,8 +128,8 @@ public class PlayerStateManager : MonoBehaviour
         IsCeilingAbove();
         Movement();
 
-        Debug.Log(currentState);
-        Debug.Log(currentSpeed);
+        //Debug.Log(currentSpeed);
+        //Debug.Log(currentState);
 
         //Moves character controller and FpsCam up and down for crouching
         if(currentHeight != targetHeight)
@@ -175,9 +185,13 @@ public class PlayerStateManager : MonoBehaviour
     /// </summary>
     private void IsCeilingAbove()
     {
+        var ceilingCheckPos = ceilingCheck.position;
+        ceilingCheckPos.y = transform.TransformPoint(0, controller.height, 0).y;
+        ceilingCheck.position = ceilingCheckPos;
+
         isCeilingAbove = Physics.CheckSphere(ceilingCheck.position + Vector3.up * ceilingDistance, ceilingRadius, groundMask);
 
-        if(isCrouching == false)
+        if (isCrouching == false)
         {
             if (isCeilingAbove)
             {
@@ -189,7 +203,7 @@ public class PlayerStateManager : MonoBehaviour
 
     private void CrouchSpeed()
     {
-        if (isSprinting == true) return;
+        if (isSprinting == true || isSliding) return;
 
         if(isGrounded == true)
         { 
@@ -199,6 +213,7 @@ public class PlayerStateManager : MonoBehaviour
             float normal = Mathf.InverseLerp(crouchHeight, baseHeight, aValue);
             float bvalue = Mathf.Lerp(crouchSpeed, baseSpeed, normal);
             currentSpeed = bvalue;
+
         }
     }
 
@@ -215,6 +230,6 @@ public class PlayerStateManager : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(groundCheck.position + Vector3.up * groundDistance, groundRadius);
-        Gizmos.DrawWireSphere(ceilingCheck.position + Vector3.up * ceilingDistance, groundRadius);
+        Gizmos.DrawWireSphere(ceilingCheck.position + Vector3.up * ceilingDistance,ceilingRadius);
     }
 }
