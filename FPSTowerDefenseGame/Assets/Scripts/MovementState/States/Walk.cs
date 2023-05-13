@@ -6,7 +6,6 @@ public class Walk : PlayerBaseState
 {
     public override void EnterState(PlayerStateManager movement)
     {
-        
     }
 
     public override void UpdateState(PlayerStateManager movement)
@@ -16,11 +15,12 @@ public class Walk : PlayerBaseState
         else if (movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.sprint);
         else if(!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
 
-        if (movement.currentSpeed != movement.baseSpeed) movement.currentSpeed = movement.baseSpeed;
+        if (movement.targetSpeed != movement.baseSpeed) movement.targetSpeed = movement.baseSpeed;
     }
 
     void ExitState(PlayerStateManager movement, PlayerBaseState state)
     {
+
         movement.SwitchState(state);
     }
 }

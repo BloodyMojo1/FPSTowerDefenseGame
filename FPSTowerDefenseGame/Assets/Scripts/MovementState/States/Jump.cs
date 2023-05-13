@@ -16,10 +16,10 @@ public class Jump : PlayerBaseState, activeCooldown
     {
         //More Advance Jumping 
         //As players jump it needs to get weaker
-        if (id == movement.jumpId) return; //Sets Id and duration from MovementManager 
+        if (id == movement.jumpID) return; //Sets Id and duration from MovementManager 
         else
         {
-            id = movement.jumpId;
+            id = movement.jumpID;
             cooldownDuration = movement.JumpcooldownDuration;
         }
     }
@@ -38,7 +38,7 @@ public class Jump : PlayerBaseState, activeCooldown
         }
         else
         {
-            var lowJump = movement.currentJumpForce * movement.jumpForceReduction; //Reduces maxJumpforce my a percentage 1 = 100% 0.5 = 50% jump reduction
+            float lowJump = movement.currentJumpForce * movement.jumpForceReduction; //Reduces maxJumpforce my a percentage 1 = 100% 0.5 = 50% jump reduction
             if (lowJump <= movement.minJumpForce) movement.currentJumpForce = movement.minJumpForce; //Makes jump force have a min, that way player still have a little jump
             else movement.currentJumpForce = lowJump;
         }

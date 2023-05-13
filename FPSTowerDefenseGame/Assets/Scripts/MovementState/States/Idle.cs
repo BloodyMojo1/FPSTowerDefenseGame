@@ -6,7 +6,7 @@ public class Idle : PlayerBaseState
 {
     public override void EnterState(PlayerStateManager movement)
     {
-        if(movement.currentSpeed != 0) movement.currentSpeed = 0; //Enter Player State if its not moving
+        //Enter Player State if its not moving
     }
 
     /// <summary>
@@ -35,6 +35,8 @@ public class Idle : PlayerBaseState
         {
             movement.SwitchState(movement.jump);
         }
+
+        if (movement.targetSpeed != 0) movement.targetSpeed = 0;
 
 
     }

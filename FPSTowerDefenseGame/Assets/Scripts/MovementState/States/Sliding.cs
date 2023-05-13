@@ -1,9 +1,22 @@
 using UnityEngine;
 
-public class Sliding : PlayerBaseState
+public class Sliding : PlayerBaseState, activeCooldown
 
 {
+
+    private int id;
+    private float cooldownDuration;
+
+    public int Id => id;
+
+    public float CooldownDuration => cooldownDuration;
+
     private bool forceApplied;
+
+    private float CurrentY;
+    private float lastY;
+
+
 
     public override void EnterState(PlayerStateManager movement)
     {
@@ -16,6 +29,13 @@ public class Sliding : PlayerBaseState
         //When going down a slope add more speed as player go down
 
         //another cooldown like the jump where the force gets worse.
+        if (id == movement.slideID) return; //Sets Id and duration from MovementManager 
+        else
+        {
+            id = movement.slideID;
+            cooldownDuration = movement.slideCooldownDuration;
+        }
+
     }
 
 
@@ -26,19 +46,41 @@ public class Sliding : PlayerBaseState
         if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
         if (!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
         if (movement.controls.Player.Crouch.WasReleasedThisFrame()) ExitState(movement, movement.walk);
-        if (movement.currentSpeed == movement.crouchSpeed) ExitState(movement, movement.crouch); //Makes player enter crouch state when speed is crouchspeed
+        if (movement.targetSpeed == movement.crouchSpeed) ExitState(movement, movement.crouch); //Makes player enter crouch state when speed is crouchspeed
 
+        CurrentY = movement.transform.position.y;
 
-
-
-        if (forceApplied != true)
+        if(CurrentY < lastY)
         {
-            movement.currentSpeed += movement.aditionalSlidingSpeed; //Applies additional speed
+            //movement.targetSpeed = movement.slideSpeed;
+            movement.targetSpeed += Time.deltaTime * movement.slopeMultiplier * movement.slopeAngle;
+        }
+
+
+        //Whole cooldown system is bugged
+        if (!movement.cooldownSystem.IsOnCooldown(id))
+        {
+            if (movement.currentAdditionalSlidingSpeed != movement.maxAdditionalSlidingSpeed) movement.currentAdditionalSlidingSpeed = movement.maxAdditionalSlidingSpeed;
+        }
+        else
+        {
+            float lowSlideForce = movement.currentAdditionalSlidingSpeed * movement.slideForceReduction;
+            if (lowSlideForce <= movement.minAdditionalSlidingSpeed) movement.currentAdditionalSlidingSpeed = movement.minAdditionalSlidingSpeed;
+            else movement.currentAdditionalSlidingSpeed = lowSlideForce;
+        }
+
+        if (forceApplied != true && CurrentY <= lastY)
+        {
+            movement.targetSpeed += movement.currentAdditionalSlidingSpeed;
+            //Applies additional speed
             forceApplied = true; //Make forceApplied true so it only get used once.
         }
 
+        
+        lastY = CurrentY;
         //Would prefer this a timer but it works for now.
-        movement.currentSpeed = Mathf.MoveTowards(movement.currentSpeed, movement.crouchSpeed, movement.slidingDistance * Time.deltaTime); //Slowly makes current speed lose value towards crouch speed
+        movement.targetSpeed = Mathf.MoveTowards(movement.targetSpeed, movement.crouchSpeed, movement.slidingDistance * Time.deltaTime); //Slowly makes current speed lose value towards crouch speed
+        movement.cooldownSystem.PutOnCooldown(this);
     }
 
 
