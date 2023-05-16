@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class PlayerStateManager : MonoBehaviour
@@ -25,14 +24,8 @@ public class PlayerStateManager : MonoBehaviour
     private Vector3 movement;
     private Vector3 oldMovement;
     private Vector3 slideMovement;
-    //slope section test
-
-    
-
 
     public Vector3 velocity;
-
-
 
     [HideInInspector]
     public float currentHeight;
@@ -40,6 +33,7 @@ public class PlayerStateManager : MonoBehaviour
     public float targetHeight;
 
     public float targetSpeed;
+
     public float currentSpeed;
 
     [Header("Base Parameters")]
@@ -72,29 +66,39 @@ public class PlayerStateManager : MonoBehaviour
 
     public float maxJumpForce = 3f;
     public float minJumpForce = 0.5f;
-    public float jumpForceReduction = 0.1f; //Make this a range
+
+    [Range(0, 1)]
+    public float jumpForceReduction = 0.1f;
 
     [HideInInspector]
     public float currentJumpForce;
 
     [Header("Sliding Parameters")]
 
-    public float maxAdditionalSlidingSpeed = 6f;
-    public float minAdditionalSlidingSpeed = 1f;
-    public float slidingDistance = 5f;
-    public float slopeMultiplier = 0.5f;
-    public float slopeAngle;
-
     public int slideID = 2;
     public float slideCooldownDuration = 5;
-    public float slideForceReduction = 0.1f; //Make this a range
 
-    public bool isSliding;
-    private bool isSlopeSliding = false;
+    public float slidingDistance = 5f;
+    public float maxAdditionalSlidingSpeed = 6f;
+    public float minAdditionalSlidingSpeed = 1f;
+
+    [Range(0, 1)]
+    public float slideForceReduction = 0.1f;
+
+    [SerializeField] private float slopeSlideSpeed = 1f;
+    public float slopeMultiplier = 0.5f;
 
     private RaycastHit slopeHit;
 
+    [HideInInspector]
     public float currentAdditionalSlidingSpeed;
+
+    [HideInInspector]
+    public float slopeAngle;
+
+    [HideInInspector]
+    public bool isSliding;
+    private bool isSlopeSliding = false;
 
 
     [Header("Gravity")]
@@ -103,8 +107,8 @@ public class PlayerStateManager : MonoBehaviour
 
     public float gravity = -9.81f;
     public float fallMultiplier = 2.5f;
-    private float groundRadius = 0.5f;
-
+    
+    [SerializeField] private float groundRadius = 0.5f;
     [SerializeField] private float groundDistance = 0.4f;
     [SerializeField] private LayerMask groundMask;
 
@@ -124,7 +128,7 @@ public class PlayerStateManager : MonoBehaviour
     private void Awake()
     {
         controls = new InputMaster();
-        currentSpeed = baseSpeed;
+        currentSpeed = 0;
         currentHeight = baseHeight;
         targetHeight = currentHeight;
     }
@@ -138,19 +142,18 @@ public class PlayerStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(isSlopeSliding == false)
+        {
+            currentSpeed = targetSpeed;
+        }
+        
         currentState.UpdateState(this);
-
-        currentSpeed = targetSpeed;
-
-        //CrouchSpeed(); 
+        
+        CrouchSpeed(); 
         IsCeilingAbove();
         IsGrounded();
         slopeSlider();
         Movement();
-        
-
-        //Debug.Log(currentSpeed);
-        //Debug.Log(currentState);
 
         //Moves character controller and FpsCam up and down for crouching
         if (currentHeight != targetHeight)
@@ -168,6 +171,9 @@ public class PlayerStateManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Switches and enters new states
+    /// </summary>
     public void SwitchState(PlayerBaseState state)
     {
         currentState = state;
@@ -183,13 +189,15 @@ public class PlayerStateManager : MonoBehaviour
         if (isGrounded == true) oldMovement = movement; //Applies movement like normally 
         else movement = oldMovement + ((oldMovement - movement) * -airSpeed); //Applies an initial force from the last moved direction & gives little air movement in other directions.
 
-        if(isSlopeSliding == true)
+        if (isSlopeSliding == true)
         {
-            movement = Vector3.ClampMagnitude(movement, 1f);
+            movement = Vector3.ClampMagnitude(movement, slopeSlideSpeed); //Clamps Speed when on a slope to reduce player movement
+        }
+        else
+        {
+            movement = Vector3.ProjectOnPlane(movement, slopeHit.normal).normalized * currentSpeed; //Keep player fully grounded
         }
 
-        movement = Vector3.ProjectOnPlane(movement, slopeHit.normal);
-        //Debug.Log(movement.magnitude);
         controller.Move(movement * Time.deltaTime); //Applies the movement to character controller
     }
 
@@ -199,7 +207,6 @@ public class PlayerStateManager : MonoBehaviour
 
         if (isGrounded && velocity.y < 0) //checks if player is not grounded and velocity on y axis is less than 0
         {
-
             velocity.y = gravity;
         }
 
@@ -217,9 +224,9 @@ public class PlayerStateManager : MonoBehaviour
         ceilingCheckPos.y = transform.TransformPoint(0, controller.height, 0).y;
         ceilingCheck.position = ceilingCheckPos;
 
-        isCeilingAbove = Physics.CheckSphere(ceilingCheck.position + Vector3.up * ceilingDistance, ceilingRadius, groundMask);
+        isCeilingAbove = Physics.CheckSphere(ceilingCheck.position + Vector3.up * ceilingDistance, ceilingRadius, groundMask); //Check if head gets hit 
 
-        if (isCrouching == false)
+        if (isCrouching == false) //Updates players height when they let go of crouch and hit their head
         {
             if (isCeilingAbove)
             {
@@ -231,9 +238,7 @@ public class PlayerStateManager : MonoBehaviour
 
     private void CrouchSpeed()
     {
-        if (isSprinting == true || isSliding) return;
-
-        if (isGrounded == true)
+        if (isGrounded == true && isCrouching == true)
         {
             //Following 4 lines is a map range, this controls people speed if they are half crouched without pressing crouch
             //Can also be used for damage drop for nades and bullets.
@@ -248,57 +253,37 @@ public class PlayerStateManager : MonoBehaviour
     /// <summary>
     /// Checks if player is on a angle, then returns what that angle is
     /// </summary>
+    /// new bug from what i can tell is somewhere in SlopeChecker or SlopeSlider because my jump is super harsh and floating
     public bool SlopeChecker()
     {
-        
-        if (Physics.Raycast(groundCheck.position, Vector3.down, out slopeHit, 1f))
+        if (Physics.Raycast(groundCheck.position, Vector3.down, out slopeHit)) 
         {
             slopeAngle = Vector3.Angle(Vector3.up, slopeHit.normal); //Get the angle of the slope
             return slopeAngle < controller.slopeLimit && slopeAngle != 0;
-
-
-
-            //Break down slide function in 2 parts
-            //Part 1 lerpin speed
-            //Atm we are lerping through speeds
-            //I want a threshold where it wont lerp through speeds
-
-            //Bug: i think its the desiredSpeed going to 0 and stoping the lerp
-            //Bug: When going to idle both Target and desired speed are set to 0 which stops the lerp
-
-            //Part 2 slope/sliding
-            //Player needs to stay grounded when sliding on slopes
-            //Player needs to gradually gain speed when on a ramp
-            //When angle is too steep player need to automatically slide to bottom
-            //if plasyer tried to slide on a slope it will start to slide them to bottom, but can be canceled since slope isnt steep enough
-
-            //Bug: Even though the player gradually gains speed when going down a ramp only, the speed are still getting applied on flat ground 
-
-
-            //List finish movement
-            //When player side upwards make them automatically slide down
-            //when sliding on a ramp player speeds off (projectOnPlan fixes this)
-            //Player can sprint in any direction
-            //Make slide go gradually worse
-
-
         }
         return false;
     }
 
     /// <summary>
     /// Makes player slide to bottom of slope if its too steep or if they try to slide on a slope
+    /// 1 Bug/feature: When player slide then jumps the vector wont get reset untill in air so player gets slight jump increase from vector
     /// </summary>
     private void slopeSlider()
     {
+        if (isGrounded == false)
+        {
+            slideMovement = Vector3.zero;
+            return;
+        }
 
-        if(SlopeChecker() && slopeAngle != 0)
+        if (SlopeChecker() && slopeAngle != 0)
         {
             if (isSliding)
             {
                 isSlopeSliding = true;
-                Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal); //Get direction of the slope
+                Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal); //Gets direction of the slope
                 slideMovement = -slopeDirection; //Makes it so -slopedirection goes down instead up
+                
             }
             else
             {
@@ -309,20 +294,19 @@ public class PlayerStateManager : MonoBehaviour
         else if (slopeAngle > controller.slopeLimit)
         {
             isSlopeSliding = true;
-            Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal); 
-            currentSpeed += sprintSpeed + (Time.deltaTime * slopeMultiplier * slopeAngle); //Makes the spend go gradually up from sprintSpeed
-            slideMovement = -slopeDirection;
-            Debug.Log(slopeDirection);
+            Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal); //Gets direction of the slope
+            currentSpeed += slopeAngle * slopeMultiplier * Time.deltaTime; //Makes the spend go gradually up from sprintSpeed
+            slideMovement = -slopeDirection; //Applies new direction to Slidemovement
         }
         else if (slopeAngle == 0)
         {
             slideMovement = Vector3.zero; //resets slideMovement that way player dont slide forever
             isSlopeSliding = false;
         }
-
-
+       
         slideMovement = (Vector3.ProjectOnPlane(slideMovement, slopeHit.normal).normalized) * currentSpeed; //Makes players stay on slopes
-        controller.Move(slideMovement * Time.deltaTime);
+        
+        controller.Move(slideMovement * Time.deltaTime); //Move the character along slopeDirection
     }
 
     private void OnEnable()
@@ -337,7 +321,8 @@ public class PlayerStateManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(groundCheck.position + Vector3.up * groundDistance, groundRadius);
+        Gizmos.DrawWireSphere(groundCheck.position + Vector3.down * groundDistance, groundRadius);
         Gizmos.DrawWireSphere(ceilingCheck.position + Vector3.up * ceilingDistance, ceilingRadius);
+        Gizmos.DrawRay(groundCheck.position, Vector3.down * 0.3f);
     }
 }

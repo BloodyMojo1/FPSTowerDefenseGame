@@ -7,9 +7,6 @@ public class Sprint : PlayerBaseState
     public override void EnterState(PlayerStateManager movement)
     {
         movement.isSprinting = true;
-        
-        //can sprint in all directions
-
     }
 
     public override void UpdateState(PlayerStateManager movement)
@@ -17,10 +14,8 @@ public class Sprint : PlayerBaseState
         if (!movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.walk);
         else if (!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
         if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
-        if (movement.controls.Player.Crouch.IsPressed() && movement.targetSpeed >= movement.sprintSpeed) ExitState(movement, movement.sliding);
+        if (movement.controls.Player.Crouch.IsPressed() &&  movement.controls.Player.Sprint.IsPressed() && movement.isGrounded) ExitState(movement, movement.sliding);
 
-
-        //if (movement.isGrounded == false) return;
         if (movement.targetSpeed != movement.sprintSpeed)
         {
             movement.targetSpeed = movement.sprintSpeed;

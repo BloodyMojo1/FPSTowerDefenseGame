@@ -41,7 +41,6 @@ using UnityEngine;
 
                 return cooldown.timeRemaining;
             }
-
             return 0f;
         }
 

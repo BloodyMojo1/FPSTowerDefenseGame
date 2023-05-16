@@ -27,15 +27,17 @@ public class Crouch : PlayerBaseState
             if (movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.sprint);
         }
         if(movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
+
+        movement.targetSpeed = Mathf.MoveTowards(movement.targetSpeed, movement.crouchSpeed, movement.slidingDistance * Time.deltaTime); //Slowly makes current speed lose value towards crouch speed
     }
 
     void ExitState(PlayerStateManager movement, PlayerBaseState state)
     {
-        //Puts target height back to normal height
+      
 
         if (movement.controls.Player.Crouch.WasReleasedThisFrame())
         {
-            if (movement.targetHeight != movement.baseHeight) movement.targetHeight = movement.baseHeight;
+            if (movement.targetHeight != movement.baseHeight) movement.targetHeight = movement.baseHeight;   //Puts target height back to normal height
         }
 
         movement.isCrouching = false;
