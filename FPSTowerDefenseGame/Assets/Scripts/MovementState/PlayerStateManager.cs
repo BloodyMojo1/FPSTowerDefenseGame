@@ -17,13 +17,15 @@ public class PlayerStateManager : MonoBehaviour
     public InputMaster controls;
     public CooldownSystem cooldownSystem = null;
 
-    [SerializeField] private CharacterController controller;
+
+    public CharacterController controller;
     [SerializeField] private Transform fpsCam;
 
     private Vector2 move;
     private Vector3 movement;
     private Vector3 oldMovement;
     private Vector3 slideMovement;
+
 
     public Vector3 velocity;
 
@@ -35,6 +37,7 @@ public class PlayerStateManager : MonoBehaviour
     public float targetSpeed;
 
     public float currentSpeed;
+    public float test;
 
     [Header("Base Parameters")]
 
@@ -56,7 +59,7 @@ public class PlayerStateManager : MonoBehaviour
 
     public float sprintSpeed = 24f;
 
-    [HideInInspector]
+    //[HideInInspector]
     public bool isSprinting;
 
     [Header("Jump Parameters")]
@@ -74,6 +77,8 @@ public class PlayerStateManager : MonoBehaviour
     public float currentJumpForce;
 
     [Header("Sliding Parameters")]
+   
+    public Transform slopeCheck;
 
     public int slideID = 2;
     public float slideCooldownDuration = 5;
@@ -98,7 +103,7 @@ public class PlayerStateManager : MonoBehaviour
 
     [HideInInspector]
     public bool isSliding;
-    private bool isSlopeSliding = false;
+    public bool isSlopeSliding = false;
 
 
     [Header("Gravity")]
@@ -107,7 +112,7 @@ public class PlayerStateManager : MonoBehaviour
 
     public float gravity = -9.81f;
     public float fallMultiplier = 2.5f;
-    
+
     [SerializeField] private float groundRadius = 0.5f;
     [SerializeField] private float groundDistance = 0.4f;
     [SerializeField] private LayerMask groundMask;
@@ -142,14 +147,11 @@ public class PlayerStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isSlopeSliding == false)
-        {
-            currentSpeed = targetSpeed;
-        }
-        
+
         currentState.UpdateState(this);
-        
-        CrouchSpeed(); 
+
+
+        CrouchSpeed();
         IsCeilingAbove();
         IsGrounded();
         slopeSlider();
@@ -169,6 +171,9 @@ public class PlayerStateManager : MonoBehaviour
             camPos.y = transform.TransformPoint(new Vector3(0f, controller.height - 0.2f, 0f)).y;
             fpsCam.transform.position = camPos;
         }
+        currentSpeed = targetSpeed;
+
+        Debug.DrawRay(slopeCheck.position, Vector3.down, Color.red);
     }
 
     /// <summary>
@@ -238,7 +243,7 @@ public class PlayerStateManager : MonoBehaviour
 
     private void CrouchSpeed()
     {
-        if (isGrounded == true && isCrouching == true)
+        if (isGrounded == true && isSliding == false && isSprinting == false)
         {
             //Following 4 lines is a map range, this controls people speed if they are half crouched without pressing crouch
             //Can also be used for damage drop for nades and bullets.
@@ -253,10 +258,11 @@ public class PlayerStateManager : MonoBehaviour
     /// <summary>
     /// Checks if player is on a angle, then returns what that angle is
     /// </summary>
-    /// new bug from what i can tell is somewhere in SlopeChecker or SlopeSlider because my jump is super harsh and floating
+    /// //Bug: If player look towards slope while sliding that can get infinite speed overtime.
     public bool SlopeChecker()
     {
-        if (Physics.Raycast(groundCheck.position, Vector3.down, out slopeHit)) 
+        
+        if (Physics.Raycast(groundCheck.position, Vector3.down, out slopeHit, groundMask)) 
         {
             slopeAngle = Vector3.Angle(Vector3.up, slopeHit.normal); //Get the angle of the slope
             return slopeAngle < controller.slopeLimit && slopeAngle != 0;
@@ -276,14 +282,13 @@ public class PlayerStateManager : MonoBehaviour
             return;
         }
 
-        if (SlopeChecker() && slopeAngle != 0)
+        if (SlopeChecker())
         {
             if (isSliding)
             {
                 isSlopeSliding = true;
                 Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal); //Gets direction of the slope
                 slideMovement = -slopeDirection; //Makes it so -slopedirection goes down instead up
-                
             }
             else
             {
@@ -295,17 +300,24 @@ public class PlayerStateManager : MonoBehaviour
         {
             isSlopeSliding = true;
             Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal); //Gets direction of the slope
-            currentSpeed += slopeAngle * slopeMultiplier * Time.deltaTime; //Makes the spend go gradually up from sprintSpeed
-            slideMovement = -slopeDirection; //Applies new direction to Slidemovement
+            targetSpeed += slopeAngle * slopeMultiplier * Time.deltaTime; //Makes the spend go gradually up from sprintSpeed
+            slideMovement = -slopeDirection * targetSpeed; //Applies new direction to Slidemovement
         }
         else if (slopeAngle == 0)
         {
             slideMovement = Vector3.zero; //resets slideMovement that way player dont slide forever
             isSlopeSliding = false;
         }
-       
-        slideMovement = (Vector3.ProjectOnPlane(slideMovement, slopeHit.normal).normalized) * currentSpeed; //Makes players stay on slopes
-        
+
+        if (slopeAngle > controller.slopeLimit)
+        {
+            slideMovement = (Vector3.ProjectOnPlane(slideMovement, slopeHit.normal));
+        }
+        else
+        {
+            slideMovement = (Vector3.ProjectOnPlane(slideMovement, slopeHit.normal)) * currentSpeed;
+        }
+
         controller.Move(slideMovement * Time.deltaTime); //Move the character along slopeDirection
     }
 

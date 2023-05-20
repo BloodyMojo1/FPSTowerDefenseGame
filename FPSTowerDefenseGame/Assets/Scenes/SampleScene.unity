@@ -351,6 +351,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: -50, y: 0, z: 0}
+--- !u!1 &640501649
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 640501650}
+  m_Layer: 0
+  m_Name: SlopeCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &640501650
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640501649}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1595525897}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -482,6 +513,7 @@ MonoBehaviour:
   minJumpForce: 0.5
   jumpForceReduction: 0.1
   currentJumpForce: 0
+  slopeCheck: {fileID: 0}
   slideID: 0
   slideCooldownDuration: 5
   slidingDistance: 5
@@ -493,6 +525,7 @@ MonoBehaviour:
   currentAdditionalSlidingSpeed: 0
   slopeAngle: 0
   isSliding: 0
+  isSlopeSliding: 0
   groundCheck: {fileID: 0}
   gravity: -9.81
   fallMultiplier: 2.5
@@ -956,6 +989,7 @@ Transform:
   - {fileID: 1966928397}
   - {fileID: 956418718}
   - {fileID: 1945211413}
+  - {fileID: 640501650}
   m_Father: {fileID: 1963712669}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1080,6 +1114,7 @@ MonoBehaviour:
   minJumpForce: 0.5
   jumpForceReduction: 0.8
   currentJumpForce: 0
+  slopeCheck: {fileID: 640501650}
   slideID: 2
   slideCooldownDuration: 3
   slidingDistance: 5
@@ -1087,10 +1122,11 @@ MonoBehaviour:
   minAdditionalSlidingSpeed: 1
   slideForceReduction: 0.8
   slopeSlideSpeed: 1
-  slopeMultiplier: 0.5
+  slopeMultiplier: 0.1
   currentAdditionalSlidingSpeed: 0
   slopeAngle: 0
   isSliding: 0
+  isSlopeSliding: 0
   groundCheck: {fileID: 956418718}
   gravity: -9.81
   fallMultiplier: 2.5
@@ -1133,7 +1169,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1966928397
 Transform:
   m_ObjectHideFlags: 0

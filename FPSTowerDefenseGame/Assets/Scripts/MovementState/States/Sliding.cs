@@ -45,7 +45,7 @@ public class Sliding : PlayerBaseState, activeCooldown
 
         if (CurrentY < lastY)
         {
-            movement.currentSpeed += movement. slopeAngle * movement.slopeMultiplier * Time.deltaTime; //Increase speed overtime
+            movement.targetSpeed += movement.slopeAngle * movement.slopeMultiplier * Time.deltaTime; //Increase speed overtime
         }
 
         if (forceApplied != true && CurrentY <= lastY)
@@ -54,6 +54,11 @@ public class Sliding : PlayerBaseState, activeCooldown
             forceApplied = true; //Make forceApplied true so it only get used once.
         }
 
+        if (movement.isSlopeSliding == false)
+        {
+            movement.targetSpeed = Mathf.MoveTowards(movement.targetSpeed, movement.crouchSpeed, movement.slidingDistance * Time.deltaTime); //Slowly makes current speed lose value towards crouch speed
+            forceApplied = true;
+        }
 
         if (!movement.cooldownSystem.IsOnCooldown(id)) //Check if there no cooldown
         {
@@ -69,7 +74,7 @@ public class Sliding : PlayerBaseState, activeCooldown
 
         lastY = CurrentY;
 
-        movement.targetSpeed = Mathf.MoveTowards(movement.targetSpeed, movement.crouchSpeed, movement.slidingDistance * Time.deltaTime); //Slowly makes current speed lose value towards crouch speed
+
         movement.cooldownSystem.PutOnCooldown(this); //Puts this script on cooldown
     }
 

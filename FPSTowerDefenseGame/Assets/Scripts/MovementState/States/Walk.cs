@@ -15,6 +15,7 @@ public class Walk : PlayerBaseState
         else if (movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.sprint);
         else if(!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
 
+        if (movement.slopeAngle > movement.controller.slopeLimit) return;
         if (movement.targetSpeed != movement.baseSpeed) movement.targetSpeed = movement.baseSpeed;
     }
 

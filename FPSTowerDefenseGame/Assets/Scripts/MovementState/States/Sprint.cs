@@ -16,6 +16,7 @@ public class Sprint : PlayerBaseState
         if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
         if (movement.controls.Player.Crouch.IsPressed() &&  movement.controls.Player.Sprint.IsPressed() && movement.isGrounded) ExitState(movement, movement.sliding);
 
+        if (movement.slopeAngle > movement.controller.slopeLimit) return;
         if (movement.targetSpeed != movement.sprintSpeed)
         {
             movement.targetSpeed = movement.sprintSpeed;

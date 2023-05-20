@@ -36,6 +36,7 @@ public class Idle : PlayerBaseState
             movement.SwitchState(movement.jump);
         }
 
+        if (movement.slopeAngle > movement.controller.slopeLimit) return;
         if (movement.targetSpeed != 0) movement.targetSpeed = 0;
 
 
