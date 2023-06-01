@@ -71,6 +71,33 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Shoot"",
+                    ""type"": ""Button"",
+                    ""id"": ""e6e8aac6-439f-4adc-b80c-7f0117aebadb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Reload"",
+                    ""type"": ""Button"",
+                    ""id"": ""161dfe53-7224-4b9b-9159-01381edbd778"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Aim"",
+                    ""type"": ""Button"",
+                    ""id"": ""1997c291-83ad-4ad1-9632-bb0c19cbc5c3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -194,6 +221,39 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                     ""action"": ""Crouch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0cd94728-ab74-421b-ada7-614c40d38aa9"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Shoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4a66750d-5192-4273-a8dc-d13b6ecfecdc"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Reload"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""64e1133e-792d-4148-87dd-9468e97debeb"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -224,6 +284,9 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Crouch = m_Player.FindAction("Crouch", throwIfNotFound: true);
+        m_Player_Shoot = m_Player.FindAction("Shoot", throwIfNotFound: true);
+        m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
+        m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -288,6 +351,9 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Crouch;
+    private readonly InputAction m_Player_Shoot;
+    private readonly InputAction m_Player_Reload;
+    private readonly InputAction m_Player_Aim;
     public struct PlayerActions
     {
         private @InputMaster m_Wrapper;
@@ -297,6 +363,9 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Crouch => m_Wrapper.m_Player_Crouch;
+        public InputAction @Shoot => m_Wrapper.m_Player_Shoot;
+        public InputAction @Reload => m_Wrapper.m_Player_Reload;
+        public InputAction @Aim => m_Wrapper.m_Player_Aim;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -321,6 +390,15 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                 @Crouch.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCrouch;
                 @Crouch.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCrouch;
                 @Crouch.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCrouch;
+                @Shoot.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnShoot;
+                @Shoot.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnShoot;
+                @Shoot.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnShoot;
+                @Reload.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
+                @Reload.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
+                @Reload.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
+                @Aim.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @Aim.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @Aim.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -340,6 +418,15 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                 @Crouch.started += instance.OnCrouch;
                 @Crouch.performed += instance.OnCrouch;
                 @Crouch.canceled += instance.OnCrouch;
+                @Shoot.started += instance.OnShoot;
+                @Shoot.performed += instance.OnShoot;
+                @Shoot.canceled += instance.OnShoot;
+                @Reload.started += instance.OnReload;
+                @Reload.performed += instance.OnReload;
+                @Reload.canceled += instance.OnReload;
+                @Aim.started += instance.OnAim;
+                @Aim.performed += instance.OnAim;
+                @Aim.canceled += instance.OnAim;
             }
         }
     }
@@ -360,5 +447,8 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
         void OnSprint(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
+        void OnShoot(InputAction.CallbackContext context);
+        void OnReload(InputAction.CallbackContext context);
+        void OnAim(InputAction.CallbackContext context);
     }
 }

@@ -37,7 +37,6 @@ public class PlayerStateManager : MonoBehaviour
     public float targetSpeed;
 
     public float currentSpeed;
-    public float test;
 
     [Header("Base Parameters")]
 
@@ -77,8 +76,6 @@ public class PlayerStateManager : MonoBehaviour
     public float currentJumpForce;
 
     [Header("Sliding Parameters")]
-   
-    public Transform slopeCheck;
 
     public int slideID = 2;
     public float slideCooldownDuration = 5;
@@ -172,8 +169,6 @@ public class PlayerStateManager : MonoBehaviour
             fpsCam.transform.position = camPos;
         }
         currentSpeed = targetSpeed;
-
-        Debug.DrawRay(slopeCheck.position, Vector3.down, Color.red);
     }
 
     /// <summary>
@@ -335,6 +330,5 @@ public class PlayerStateManager : MonoBehaviour
     {
         Gizmos.DrawWireSphere(groundCheck.position + Vector3.down * groundDistance, groundRadius);
         Gizmos.DrawWireSphere(ceilingCheck.position + Vector3.up * ceilingDistance, ceilingRadius);
-        Gizmos.DrawRay(groundCheck.position, Vector3.down * 0.3f);
     }
 }
