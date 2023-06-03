@@ -21,12 +21,11 @@ public class PlayerStateManager : MonoBehaviour
     public CharacterController controller;
     [SerializeField] private Transform fpsCam;
 
-    private Vector2 move;
-    private Vector3 movement;
     private Vector3 oldMovement;
     private Vector3 slideMovement;
 
-
+    public Vector2 move;
+    public Vector3 movement;
     public Vector3 velocity;
 
     [HideInInspector]

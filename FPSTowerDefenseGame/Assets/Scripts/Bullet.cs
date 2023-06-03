@@ -2,32 +2,42 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField] private float shootForce;
-    [SerializeField] private float maxRange;
-    [SerializeField] private float maxDamage = 50;
-    [SerializeField] private int predictionStepsPerFrame = 6;
-
-    [Tooltip("Subtracts value from dist to give better penetration")]
-    [SerializeField] private float penetrationValue;
-
-    [Tooltip("Subtracts value from survivalChance value on wall which give better pentration. If they = the same value its 100%.")]
-    [SerializeField, Range(0, 1)] private float survivalRate;
-
-    [SerializeField] private Vector3 bulletVelocity;
     [SerializeField] private GameObject bulletHole;
 
-    private RaycastHit[] hitInfoA;
-    private RaycastHit[] hitInfoB;
+    [Header("Bullet Stats")]
 
-    private Vector3 lastPosition;
-    private Vector3 entryPoint;
-    private Vector3 exitPoint;
-    private Vector3 point2;
+    [SerializeField] private float shootForce;
+    [SerializeField] private float maxDamage = 50;
+    [SerializeField] private float maxRange;
+    
 
+    private int currentDamage;
+    
     private float obstacleDistance;
     private float distanceTraveled;
-    private int currentDamage;
+
+    [Header("Bullet Trajectory")]
+    [SerializeField] private int predictionStepsPerFrame = 6;
+    
+    [SerializeField] private Vector3 bulletVelocity;
+
+    [Header("Wall Penetraion")]
+    
+    [Tooltip("Higer Value = Better Penetration")]
+    [SerializeField] private float penetrationValue;
+
+    [Tooltip("Any Value = a guaranteed chance at making it through wall. 0 = no chance unless wall = 0. if bullet = 0.25 and wall = 0.75 survival chance = 50%")]
+    [SerializeField, Range(0, 1)] private float survivalRate;
+
     private int currentPenDamage;
+    
+    private RaycastHit[] hitInfoA;
+    private RaycastHit[] hitInfoB;
+    
+    private Vector3 entryPoint;
+    private Vector3 exitPoint;
+    private Vector3 lastPosition;
+    private Vector3 point2;
 
     // Start is called before the first frame update
     private void Start()
@@ -40,7 +50,6 @@ public class Bullet : MonoBehaviour
     private void Update()
     {
         DamageFallOff();
-
     }
 
     private float FixedUpdate()
@@ -66,16 +75,19 @@ public class Bullet : MonoBehaviour
                     if (Random.value > survivalChance) //Checks if bullet can survive
                     {
                         obstacleDistance = Vector3.Distance(entryPoint, exitPoint); //finds the distance between entry,exit points
-                        float maxPen = wallPenetration.maxPenetrationAmount - -penetrationValue; 
-
-                        if (obstacleDistance <= maxPen)
+                        
+                        //float maxPen = wallPenetration.maxPenetrationAmount - -penetrationValue; //Calculates a lower pen distance
+                        obstacleDistance = wallPenetration.maxPenetrationAmount + obstacleDistance; //Creates new distance to beat 
+                        Debug.Log(obstacleDistance);
+                        Debug.Log(penetrationValue);
+                        if (penetrationValue >= obstacleDistance) 
                         {
                             int _ObstacleDistance = Mathf.RoundToInt(obstacleDistance);
 
-                            currentPenDamage = _ObstacleDistance * wallPenetration.wallPenetrationDamage;
+                            currentPenDamage = _ObstacleDistance * wallPenetration.wallPenetrationDamage; //Calculates new bullet damage depending on wall distance 
 
-                            currentDamage = currentDamage - currentPenDamage;
-                            Debug.Log(currentDamage);
+                            currentDamage = currentDamage - currentPenDamage; //Calculates new current damage
+                            //Debug.Log(currentDamage);
                         }
                         else Destroy(gameObject);
                     }

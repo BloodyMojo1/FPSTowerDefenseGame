@@ -9,7 +9,7 @@ public class MouseLook : MonoBehaviour
 
     private float xRotation = 0f;
 
-    Vector2 mouseLook;
+    public Vector2 mouseLook;
 
     private GunData gunDataScript;
 
@@ -20,6 +20,8 @@ public class MouseLook : MonoBehaviour
     private float upRecoil;
 
     private InputMaster controls;
+
+
 
     private void Awake()
     {
@@ -36,9 +38,11 @@ public class MouseLook : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+
         mouseLook = controls.Player.MouseLook.ReadValue<Vector2>(); //Get Mouses Values
 
-        if (gunDataScript.allowInvoke)
+        //Calculates recoul pattern
+        if (!gunDataScript.allowInvoke)
         {
             if (!gunDataScript.isAiming)
             {
@@ -51,25 +55,34 @@ public class MouseLook : MonoBehaviour
                 yRecoil = gunDataScript.yADSRecoilPattern.Evaluate(gunDataScript.bulletsShotInARow);
             }
         }
+        else
+        {
+            xRecoil = 0;
+            yRecoil = 0;
+        }
+
+        //Calculate random recoil
+        if (Mathf.Abs(upRecoil) > gunDataScript.minRecoilThreshold)
+        {
+            upRecoil += gunDataScript.snapiness * Time.deltaTime * ((upRecoil > 0) ? -1 : 1);
+        }
+        else upRecoil = 0;
+
+        if (Mathf.Abs(sideRecoil) > gunDataScript.minRecoilThreshold)
+        {
+            sideRecoil += gunDataScript.snapiness * Time.deltaTime * ((sideRecoil > 0) ? -1 : 1);
+        }
+        else sideRecoil = 0;
 
         mouseLook.x += xRecoil;
         mouseLook.y += yRecoil;
 
-        //Adds sensitivity to be able to look around
+        //Adds sensitivity & adds recoil to the camera
         float mouseX = upRecoil + mouseLook.x * mouseSensitivity * Time.deltaTime;
         float mouseY = sideRecoil + mouseLook.y * mouseSensitivity * Time.deltaTime;
 
-       if(Mathf.Abs(upRecoil) > gunDataScript.minRecoilThreshold)
-        {
-            upRecoil += gunDataScript.returnSpeed * Time.deltaTime * ((upRecoil > 0) ? -1 : 1);
-        }
-        else upRecoil = 0;
+        //Calculats t
 
-        if(Mathf.Abs(sideRecoil) > gunDataScript.minRecoilThreshold)
-        {
-            sideRecoil += gunDataScript.returnSpeed * Time.deltaTime * ((sideRecoil > 0) ? -1 : 1);
-        }
-        else sideRecoil = 0;
 
         xRotation -= mouseY; 
         xRotation = Mathf.Clamp(xRotation, -90, 90); //Clamps the Y axis value that way player dont look past head/feet

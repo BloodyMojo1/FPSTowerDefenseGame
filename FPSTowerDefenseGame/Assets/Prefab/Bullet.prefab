@@ -49,7 +49,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1992095367902881708}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -143,11 +143,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e94d0586f11fb6e43b98fe31a80c4545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shootForce: 200
-  maxRange: 100
-  maxDamage: 50
-  predictionStepsPerFrame: 100
-  penetrationValue: -1.1
-  survivalRate: 1
-  bulletVelocity: {x: 0, y: 0, z: 20}
   bulletHole: {fileID: 8939320498815530081, guid: 5618a42584331804aa225c685f408870, type: 3}
+  shootForce: 200
+  maxDamage: 50
+  maxRange: 100
+  predictionStepsPerFrame: 100
+  bulletVelocity: {x: 0, y: 0, z: 20}
+  penetrationValue: 1
+  survivalRate: 0.25
