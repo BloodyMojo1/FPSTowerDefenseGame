@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class MouseLook : MonoBehaviour
 {
@@ -21,8 +22,6 @@ public class MouseLook : MonoBehaviour
 
     private InputMaster controls;
 
-
-
     private void Awake()
     {
         gunDataScript = gameObject.GetComponentInChildren<GunData>();
@@ -38,7 +37,6 @@ public class MouseLook : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-
         mouseLook = controls.Player.MouseLook.ReadValue<Vector2>(); //Get Mouses Values
 
         //Calculates recoul pattern
@@ -48,6 +46,10 @@ public class MouseLook : MonoBehaviour
             {
                 xRecoil = gunDataScript.xRecoilPattern.Evaluate(gunDataScript.bulletsShotInARow);
                 yRecoil = gunDataScript.yRecoilPattern.Evaluate(gunDataScript.bulletsShotInARow);
+
+                upRecoil += gunDataScript.snapiness * Time.deltaTime * ((upRecoil > 0) ? -1 : 1);
+                sideRecoil += gunDataScript.snapiness * Time.deltaTime * ((sideRecoil > 0) ? -1 : 1);
+
             }
             else
             {
@@ -59,29 +61,18 @@ public class MouseLook : MonoBehaviour
         {
             xRecoil = 0;
             yRecoil = 0;
+            upRecoil = 0;
+            sideRecoil = 0;
         }
 
-        //Calculate random recoil
-        if (Mathf.Abs(upRecoil) > gunDataScript.minRecoilThreshold)
-        {
-            upRecoil += gunDataScript.snapiness * Time.deltaTime * ((upRecoil > 0) ? -1 : 1);
-        }
-        else upRecoil = 0;
 
-        if (Mathf.Abs(sideRecoil) > gunDataScript.minRecoilThreshold)
-        {
-            sideRecoil += gunDataScript.snapiness * Time.deltaTime * ((sideRecoil > 0) ? -1 : 1);
-        }
-        else sideRecoil = 0;
+        //Adds random and pattern recoil here
+        mouseLook.x += ((xRecoil + upRecoil) * gunDataScript.maxPatternRecoilSpread * Time.deltaTime) * 10;
+        mouseLook.y += ((yRecoil + sideRecoil) * gunDataScript.maxPatternRecoilSpread * Time.deltaTime) * 10;
 
-        mouseLook.x += xRecoil;
-        mouseLook.y += yRecoil;
-
-        //Adds sensitivity & adds recoil to the camera
-        float mouseX = upRecoil + mouseLook.x * mouseSensitivity * Time.deltaTime;
-        float mouseY = sideRecoil + mouseLook.y * mouseSensitivity * Time.deltaTime;
-
-        //Calculats t
+        //Adds sensitivity to the camera
+        float mouseX =  mouseLook.x * mouseSensitivity;
+        float mouseY =  mouseLook.y * mouseSensitivity;
 
 
         xRotation -= mouseY; 

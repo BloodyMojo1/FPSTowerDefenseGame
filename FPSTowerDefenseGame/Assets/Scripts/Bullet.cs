@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    //Inside line 23 is temp code 
+    //public GameObject spawner;
     [SerializeField] private GameObject bulletHole;
 
     [Header("Bullet Stats")]
@@ -38,6 +40,11 @@ public class Bullet : MonoBehaviour
     private Vector3 exitPoint;
     private Vector3 lastPosition;
     private Vector3 point2;
+
+    private void Awake()
+    { 
+        //targetSpawnerScript = spawner.GetComponent<TargetMiniGame>();
+    }
 
     // Start is called before the first frame update
     private void Start()
@@ -105,8 +112,21 @@ public class Bullet : MonoBehaviour
                 GameObject bulletHoles = Instantiate(bulletHole, hitInfoA[i].point + hitInfoA[i].normal * 0.001f, Quaternion.LookRotation(-hitInfoA[i].normal));
                 //Destroy(bulletHoles.gameObject, 5f);
 
+                
+                ///Temporary Target Spawner system
+                if (hitInfoA[i].collider.tag == "Enemy")
+                {
+                    
+                    GameObject targetSpawner = GameObject.FindGameObjectWithTag("Spawner"); //Temp
+                    TargetMiniGame target = targetSpawner.GetComponent<TargetMiniGame>(); //Temp
+                    Destroy(hitInfoA[i].transform.parent.gameObject);
+                    Destroy(bulletHoles);
+                    Destroy(gameObject);
+                    target.targetCount--;
+
+                }
                 //Destroys buttet if collider doesnt have tag
-                if (hitInfoA[i].collider.tag != "Penetrable Wall") Destroy(gameObject);
+                else if (hitInfoA[i].collider.tag != "Penetrable Wall") Destroy(gameObject);
             }
             point1 = point2; //Makes point 1 = point 2 to move bullet
         }

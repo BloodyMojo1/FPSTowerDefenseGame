@@ -63,13 +63,16 @@ public class GunData : MonoBehaviour
     public AnimationCurve yADSRecoilPattern;
     public AnimationCurve xADSRecoilPattern;
 
-    public float yRandomRecoil;
     public float xRandomRecoil;
-    public float yADSRandomRecoil;
+    public float yRandomRecoil;
+    public float zRandomRecoil;
+
     public float xADSRandomRecoil;
+    public float yADSRandomRecoil;
+    public float zADSRandomRecoil;
 
     public float snapiness;
-    public float minRecoilThreshold;
+    public float maxPatternRecoilSpread;
 
     [HideInInspector]
     private float bulletTimer;
@@ -77,6 +80,12 @@ public class GunData : MonoBehaviour
     public int bulletsShotInARow;
     [HideInInspector]
     public bool allowInvoke = true;
+
+    private Vector3 zGunRecoil;
+    [SerializeField] private float xRecoilRotation;
+    [SerializeField] private float xADSRecoilRotation;
+    [SerializeField] private float zRecoilSmoothing;
+    private Vector3 recoilRotation;
 
     [Header("Weapon Sway")]
     [SerializeField] private float swayStep = 0.01f;
@@ -101,7 +110,7 @@ public class GunData : MonoBehaviour
     [Header("Bobbing")]
     [SerializeField] private float bobSpeed = 2;
 
-    [SerializeField] private Vector3 travelLimit = Vector3.one * 0.25f;
+    [SerializeField] private Vector3 travelLimit = Vector3.one * 0.025f;
     [SerializeField] private Vector3 bobLimit = Vector3.one * 0.01f;
     [SerializeField] private Vector3 bobMultiplier;
 
@@ -109,7 +118,7 @@ public class GunData : MonoBehaviour
     [Space(10)]
     [SerializeField] private float aimBobSpeed = 4;
 
-    [SerializeField] private Vector3 aimTravelLimit = Vector3.one * 0.25f;
+    [SerializeField] private Vector3 aimTravelLimit = Vector3.one * 0.025f;
     [SerializeField] private Vector3 aimBobLimit = Vector3.one * 0.01f;
     [SerializeField] private Vector3 aimBobMultiplier;
 
@@ -126,6 +135,7 @@ public class GunData : MonoBehaviour
 
     private void Awake()
     {
+        mouse = gameObject.GetComponentInParent<MouseLook>();
         controls = new InputMaster();
         bulletsLeft = magazineSize; //Make sure mag is full 
         readyToShoot = true;
@@ -135,8 +145,8 @@ public class GunData : MonoBehaviour
 
     private void Update()
     {
-
-        mouse = gameObject.GetComponentInParent<MouseLook>();
+        //Add backward recoil, for game feel. ATM it doesnt feel like there any recoil being applied when the gun is shot
+        
         Input();
 
         bulletTimer += Time.deltaTime;
@@ -157,7 +167,7 @@ public class GunData : MonoBehaviour
         BobRotation();
 
         CompositePositionRoation();
-
+        
     }
 
     private void Input()
@@ -225,12 +235,24 @@ public class GunData : MonoBehaviour
         //Invoke resetShot funtion (if not already invoked)
         if (allowInvoke)
         {
-            Invoke("ResetShoot", timeBetweenShooting);
             allowInvoke = false;
+            Invoke("ResetShoot", timeBetweenShooting);
+            
+            
 
             //Calculate recoil after bullet shot
-            if (!isAiming) mouse.RecoilFire(xRandomRecoil, yRandomRecoil);
-            else mouse.RecoilFire(xADSRandomRecoil, yADSRandomRecoil);
+            if (!isAiming)
+            {
+                mouse.RecoilFire(xRandomRecoil, yRandomRecoil);
+                zGunRecoil = new Vector3(0, 0, Random.Range(0, -zRandomRecoil));
+                recoilRotation = new Vector3(Random.Range(0, -xRecoilRotation), 0, 0);
+            }
+            else
+            {
+                mouse.RecoilFire(xADSRandomRecoil, yADSRandomRecoil);
+                zGunRecoil = new Vector3(0, 0, Random.Range(0, -zADSRandomRecoil));
+                recoilRotation = new Vector3(Random.Range(0, -xADSRecoilRotation), 0, 0);
+            }
         }
 
         //if more than one bulletsPerTap make sure to repeat shoot function
@@ -267,6 +289,9 @@ public class GunData : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// calculates new gun x,y,z postion based on mouse movement
+    /// </summary>
     private void Sway()
     {
         if(isAiming == false)
@@ -290,6 +315,9 @@ public class GunData : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Calculates Rotatation for the gun based on mouse movement
+    /// </summary>
     private void SwayRotation()
     {
         if(isAiming == false)
@@ -310,8 +338,12 @@ public class GunData : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Calulates position based on movement
+    /// </summary>
     private void BobOffset()
     {
+        //Used to generate our sin and cos waves
         speedCurve += (Time.deltaTime * (movementManager.isGrounded ? movementManager.movement.magnitude : 1f) + 0.01f) / currentBobSpeed;
         if(speedCurve >= 100) speedCurve = 0;
 
@@ -321,6 +353,7 @@ public class GunData : MonoBehaviour
             bobPosition.x = (curveCos * bobLimit.x * (movementManager.isGrounded ? 1 : 0)) - (movementManager.move.x * travelLimit.x);
             bobPosition.y = (curveSin * bobLimit.y) - (movementManager.movement.y * travelLimit.y);
             bobPosition.z = -(movementManager.move.y * travelLimit.y);
+            
         }
         else
         {
@@ -328,9 +361,11 @@ public class GunData : MonoBehaviour
             bobPosition.y = (curveSin * aimBobLimit.y) - (movementManager.movement.y * aimTravelLimit.y);
             bobPosition.z = -(movementManager.move.y * aimTravelLimit.y);
         }
-
     }
 
+    /// <summary>
+    /// Calculates Rotatation for the gun based on movement
+    /// </summary>
     private void BobRotation()
     {
         if(isAiming == false)
@@ -348,10 +383,22 @@ public class GunData : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Makes gun move/rotate based on the sway and bob calculations 
+    /// </summary>
     private void CompositePositionRoation()
     {
-        transform.localPosition = Vector3.Lerp(transform.localPosition, swayPos + bobPosition, smooth * Time.deltaTime);
-        transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(swayEulerRot) * Quaternion.Euler(bobEulerRotation), Time.deltaTime * smoothRot);
+
+        zGunRecoil = Vector3.Lerp(zGunRecoil,  Vector3.zero, zRecoilSmoothing * Time.deltaTime);
+        transform.localPosition = Vector3.Lerp(transform.localPosition, swayPos + bobPosition + zGunRecoil, smooth * Time.deltaTime);
+
+        recoilRotation = Vector3.Lerp(recoilRotation, Vector3.zero, smooth * Time.deltaTime);
+        transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(swayEulerRot) * Quaternion.Euler(bobEulerRotation) * Quaternion.Euler(recoilRotation), Time.deltaTime * smoothRot);
+
+        Vector3 attackSway = ((swayPos + bobPosition) - desiredPosition) + new Vector3(0, 0, 0.2f);
+        attactPoint.transform.localPosition = Vector3.Lerp(attactPoint.transform.localPosition, attackSway, smooth * Time.deltaTime);
+
+        //Slight randomness in Sway and bob will go along way. The movement is too repetivtive where u notice the loop.
 
 
     }

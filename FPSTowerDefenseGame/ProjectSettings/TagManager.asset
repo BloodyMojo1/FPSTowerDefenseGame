@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Penetrable Wall
+  - Enemy
+  - Spawner
   layers:
   - Default
   - TransparentFX
