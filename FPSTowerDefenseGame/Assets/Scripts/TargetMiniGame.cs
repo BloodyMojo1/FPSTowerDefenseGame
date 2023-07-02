@@ -4,7 +4,7 @@ public class TargetMiniGame : MonoBehaviour
 {
     [SerializeField] private Vector3 size;
 
-    [SerializeField] private GameObject target;
+    [SerializeField] private GameObject[] target;
     [SerializeField] private float spacingGap;
     public int targetCapacity;
 
@@ -12,7 +12,7 @@ public class TargetMiniGame : MonoBehaviour
 
     private Vector3 pos;
 
-    public GameObject clone;
+    private GameObject clone;
 
 
     // Start is called before the first frame update
@@ -26,10 +26,12 @@ public class TargetMiniGame : MonoBehaviour
         while (targetCount < targetCapacity)
         {
             targetCount++;
+            int randomIndex = Random.Range(0, target.Length);
+
             pos = transform.position + new Vector3(Random.Range(size.x, -size.x) / spacingGap,
                 Random.Range(size.y, -size.y) / spacingGap,
                 Random.Range(size.z, -size.z) / spacingGap);
-            clone = Instantiate(target, pos, Quaternion.identity);
+            clone = Instantiate(target[randomIndex], pos, Quaternion.identity);
         }
     }
 
@@ -37,8 +39,6 @@ public class TargetMiniGame : MonoBehaviour
     {
         targetCount--;
     }
-
-
 
     private void OnDrawGizmos()
     {

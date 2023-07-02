@@ -13,7 +13,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float maxRange;
     
 
-    private int currentDamage;
+    public int currentDamage;
     
     private float obstacleDistance;
     private float distanceTraveled;
@@ -85,8 +85,6 @@ public class Bullet : MonoBehaviour
                         
                         //float maxPen = wallPenetration.maxPenetrationAmount - -penetrationValue; //Calculates a lower pen distance
                         obstacleDistance = wallPenetration.maxPenetrationAmount + obstacleDistance; //Creates new distance to beat 
-                        Debug.Log(obstacleDistance);
-                        Debug.Log(penetrationValue);
                         if (penetrationValue >= obstacleDistance) 
                         {
                             int _ObstacleDistance = Mathf.RoundToInt(obstacleDistance);
@@ -110,23 +108,16 @@ public class Bullet : MonoBehaviour
                 entryPoint = hitInfoA[i].point;
                 //Instantiate a bullethole at entrypoint
                 GameObject bulletHoles = Instantiate(bulletHole, hitInfoA[i].point + hitInfoA[i].normal * 0.001f, Quaternion.LookRotation(-hitInfoA[i].normal));
-                //Destroy(bulletHoles.gameObject, 5f);
+                Destroy(bulletHoles.gameObject, 0.5f);
 
-                
-                ///Temporary Target Spawner system
-                if (hitInfoA[i].collider.tag == "Enemy")
+                IDamageable damageable = hitInfoA[i].collider.GetComponent<IDamageable>();
+                if(damageable != null)
                 {
-                    
-                    GameObject targetSpawner = GameObject.FindGameObjectWithTag("Spawner"); //Temp
-                    TargetMiniGame target = targetSpawner.GetComponent<TargetMiniGame>(); //Temp
-                    Destroy(hitInfoA[i].transform.parent.gameObject);
-                    Destroy(bulletHoles);
-                    Destroy(gameObject);
-                    target.targetCount--;
-
+                    damageable.Damage(currentDamage);
                 }
-                //Destroys buttet if collider doesnt have tag
-                else if (hitInfoA[i].collider.tag != "Penetrable Wall") Destroy(gameObject);
+
+                //Destroys bullet if collider doesnt have tag
+                if (hitInfoA[i].collider.tag != "Penetrable Wall") Destroy(gameObject);
             }
             point1 = point2; //Makes point 1 = point 2 to move bullet
         }
@@ -175,4 +166,5 @@ public class Bullet : MonoBehaviour
         Gizmos.DrawSphere(entryPoint, 0.1f);
         Gizmos.DrawSphere(exitPoint, 0.1f);
     }
+
 }

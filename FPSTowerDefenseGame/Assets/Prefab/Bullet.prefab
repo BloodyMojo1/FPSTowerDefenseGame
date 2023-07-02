@@ -45,7 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e94d0586f11fb6e43b98fe31a80c4545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetSpawnerScript: {fileID: 0}
   bulletHole: {fileID: 8939320498815530081, guid: 5618a42584331804aa225c685f408870, type: 3}
   shootForce: 200
   maxDamage: 50
@@ -72,7 +71,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4127799782540835926
 Transform:
   m_ObjectHideFlags: 0
@@ -103,7 +102,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4751565003340100644}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

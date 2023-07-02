@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1815425751041932572}
   - component: {fileID: 8978730598711628556}
   - component: {fileID: 4940694640294493005}
+  - component: {fileID: 1799178680479825720}
   m_Layer: 0
   m_Name: Target
   m_TagString: Enemy
@@ -62,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e1d512ef085ebcc4293468895e6a143a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -98,6 +99,20 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1799178680479825720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4754689429125956054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b221995c46d63524c91bc974c88da5fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  health: 100
 --- !u!1 &6934785192759544199
 GameObject:
   m_ObjectHideFlags: 0
@@ -108,7 +123,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6112641594596139612}
   m_Layer: 0
-  m_Name: TargetPivot
+  m_Name: Target_Weak
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
