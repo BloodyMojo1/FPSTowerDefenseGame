@@ -17,7 +17,7 @@ public class WeaponParts : ScriptableObject
         mag,
     }
 
-    public PartType partType;
+    public PartType partType; 
     public Transform prefab;
 }
 

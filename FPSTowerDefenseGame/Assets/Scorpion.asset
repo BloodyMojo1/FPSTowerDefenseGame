@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e26846dd68270cf48b57bdefba5dcfbf, type: 3}
+  m_Name: Scorpion
+  m_EditorClassIdentifier: 
+  body: 0
+  prefab: {fileID: 582448527073432372, guid: 0aa3e01185d5f0b4291ac0d9cef478d7, type: 3}
+  prefabUI: {fileID: 0}
+  weaponPartList: {fileID: 11400000, guid: 9405da5d0d2228a4eae5feb4b009611c, type: 2}
