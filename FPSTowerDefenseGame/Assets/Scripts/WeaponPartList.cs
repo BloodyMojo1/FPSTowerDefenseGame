@@ -9,16 +9,16 @@ public class WeaponPartList : ScriptableObject
 
     public List<WeaponParts> GetWeaponPartList(WeaponParts.PartType partType)
     {
-        List<WeaponParts> returnWeaponPart = new List<WeaponParts>();
+        List<WeaponParts> returnWeaponPartList = new List<WeaponParts>();
 
         foreach(WeaponParts weaponParts in weaponPartList)
         {
             if(weaponParts.partType == partType)
             {
-                returnWeaponPart.Add(weaponParts);
+                returnWeaponPartList.Add(weaponParts);
             }
         }
 
-        return weaponPartList;
+        return returnWeaponPartList;
     }
 }

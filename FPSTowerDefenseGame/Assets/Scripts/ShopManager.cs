@@ -11,13 +11,16 @@ public class ShopManager : MonoBehaviour
     
     [SerializeField] private int buttonAmount;
     [SerializeField] private GameObject buttonOptionPrefab;
+    [SerializeField] private GameObject playerCam;
 
     private GameObject buttonGameObject;
 
     [Header("Loot Options")]
 
     [SerializeField] private List<ShopLoot> lootList = new List<ShopLoot>();
-    private ShopLoot droppedItem;
+    public ShopLoot droppedItem;
+
+
     
 
     ShopLoot GetDroppedItem()
@@ -62,8 +65,27 @@ public class ShopManager : MonoBehaviour
                 //Asigns each buttons with loot values
                 for(int b = 0; b < buttons.Length; b++)
                 {
-                    int cacheIndex = droppedItem.itemCost; //Gives each button their loot values
-                    buttons[b].onClick.AddListener(() => BuyButton(cacheIndex)); //Checks if button has been pressed
+                    int cacheLootCost = droppedItem.itemCost; //Gives each button their loot values
+
+                    //Check what enum ShopLoot is
+                    GameObject cacheLootModel = null;
+                    ShopLoot.PrefabType cachePrefabType = droppedItem.prefabType;
+                    WeaponParts cacheWeaponParts = droppedItem.weaponParts;
+                    //Debug.Log(droppedItem.weaponParts.partType);
+
+                    if (droppedItem.weaponBodyType != null)
+                    {
+                        cacheLootModel = droppedItem.weaponBodyType.prefab.gameObject;
+
+                    }
+                    if (droppedItem.weaponParts != null)
+                    {
+                        cacheLootModel = droppedItem.weaponParts.prefab.gameObject;
+                        
+                    }
+                    
+                    buttons[b].onClick.AddListener(() => BuyButton(cacheLootCost, cacheLootModel, cachePrefabType, cacheWeaponParts)); //Checks if button has been pressed
+                    Debug.Log(cacheWeaponParts);
                 }
                 buttonText.SetText(System.Convert.ToString(droppedItem.name)); //Changes button name with loot option
             }
@@ -81,8 +103,9 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    public void BuyButton(int index)
+    public void BuyButton(int Cost, GameObject lootModel, ShopLoot.PrefabType prefabType, WeaponParts weaponParts)
     {
-        CurrencyManager.main.SpendCurrency(index);
+        CurrencyManager.main.SpendCurrency(Cost, lootModel, prefabType, weaponParts);
+
     }
 }

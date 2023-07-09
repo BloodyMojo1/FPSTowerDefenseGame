@@ -19,7 +19,7 @@ public class MouseLook : MonoBehaviour
     private float sideRecoil;
     private float upRecoil;
 
-    private InputMaster controls;
+    public InputMaster controls;
 
     private void Awake()
     {
@@ -36,6 +36,11 @@ public class MouseLook : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+        if(gunDataScript == null)
+        {
+            gunDataScript = gameObject.GetComponentInChildren<GunData>();
+        }
+
         mouseLook = controls.Player.MouseLook.ReadValue<Vector2>(); //Get Mouses Values
 
         //Calculates recoul pattern

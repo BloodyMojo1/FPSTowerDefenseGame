@@ -3,20 +3,20 @@ using UnityEngine;
 
 public class GunData : MonoBehaviour
 {
-    private InputMaster controls;
+    public InputMaster controls;
     private MouseLook mouse;
     [SerializeField]
     private PlayerStateManager movementManager;
 
     public Camera fpsCam;
-    
+
     public GameObject muzzleFlash;
 
     public Transform attactPoint;
 
 
     [Header("Shooting Stats")]
-    
+
     public GameObject bullet;
 
 
@@ -34,19 +34,19 @@ public class GunData : MonoBehaviour
     private bool readyToShoot;
 
     [Header("Reload Stats")]
-    
+
     public TextMeshProUGUI ammunitionDisplay;
 
     [SerializeField] private int magazineSize;
 
     [SerializeField] private float reloadTime;
-    
+
     private int bulletsLeft;
 
     private bool reloading;
 
     [Header("Aiming System")]
-    [SerializeField] private Vector3 normalLocalPosition;
+    [SerializeField] public Vector3 normalLocalPosition;
     [SerializeField] private Vector3 aimingLocalPosition;
     [SerializeField] private Vector3 desiredPosition;
 
@@ -57,7 +57,7 @@ public class GunData : MonoBehaviour
 
 
     [Header("Recoil System")]
-    
+
     public AnimationCurve yRecoilPattern;
     public AnimationCurve xRecoilPattern;
     public AnimationCurve yADSRecoilPattern;
@@ -135,6 +135,14 @@ public class GunData : MonoBehaviour
 
     private void Awake()
     {
+        Transform rootParent = gameObject.transform.root;
+        GameObject canvas = GameObject.FindGameObjectWithTag("UI");
+        movementManager = rootParent.GetComponent<PlayerStateManager>();
+        fpsCam = rootParent.transform.GetChild(1).GetChild(0).GetComponent<Camera>();
+        attactPoint = rootParent.transform.GetChild(1).GetChild(0).GetChild(1);
+        ammunitionDisplay = canvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+
+
         mouse = gameObject.GetComponentInParent<MouseLook>();
         controls = new InputMaster();
         bulletsLeft = magazineSize; //Make sure mag is full 
@@ -143,10 +151,11 @@ public class GunData : MonoBehaviour
 
     }
 
+
     private void Update()
     {
         //Add backward recoil, for game feel. ATM it doesnt feel like there any recoil being applied when the gun is shot
-        
+
         Input();
 
         bulletTimer += Time.deltaTime;
@@ -167,7 +176,7 @@ public class GunData : MonoBehaviour
         BobRotation();
 
         CompositePositionRoation();
-        
+
     }
 
     private void Input()
@@ -180,14 +189,14 @@ public class GunData : MonoBehaviour
         if (controls.Player.Aim.IsPressed())
         {
             isAiming = true;
-            if(currentBobSpeed != aimBobSpeed) currentBobSpeed = aimBobSpeed;
+            if (currentBobSpeed != aimBobSpeed) currentBobSpeed = aimBobSpeed;
         }
         else
         {
             isAiming = false;
             if (currentBobSpeed != bobSpeed) currentBobSpeed = bobSpeed;
         }
-   
+
 
         //Reload
         if (controls.Player.Reload.WasPressedThisFrame() && bulletsLeft < magazineSize && !reloading) Reload();
@@ -237,8 +246,8 @@ public class GunData : MonoBehaviour
         {
             allowInvoke = false;
             Invoke("ResetShoot", timeBetweenShooting);
-            
-            
+
+
 
             //Calculate recoil after bullet shot
             if (!isAiming)
@@ -294,7 +303,7 @@ public class GunData : MonoBehaviour
     /// </summary>
     private void Sway()
     {
-        if(isAiming == false)
+        if (isAiming == false)
         {
             Vector3 invertLook = mouse.mouseLook * -swayStep;
             invertLook.x = Mathf.Clamp(invertLook.x, -maxStepDistance, maxStepDistance);
@@ -320,7 +329,7 @@ public class GunData : MonoBehaviour
     /// </summary>
     private void SwayRotation()
     {
-        if(isAiming == false)
+        if (isAiming == false)
         {
             Vector2 invertLook = mouse.mouseLook * -roatationStep;
             invertLook.x = Mathf.Clamp(invertLook.x, -maxRoatationStep, maxRoatationStep);
@@ -345,7 +354,7 @@ public class GunData : MonoBehaviour
     {
         //Used to generate our sin and cos waves
         speedCurve += (Time.deltaTime * (movementManager.isGrounded ? movementManager.movement.magnitude : 1f) + 0.01f) / currentBobSpeed;
-        if(speedCurve >= 100) speedCurve = 0;
+        if (speedCurve >= 100) speedCurve = 0;
 
 
         if (isAiming == false)
@@ -353,7 +362,7 @@ public class GunData : MonoBehaviour
             bobPosition.x = (curveCos * bobLimit.x * (movementManager.isGrounded ? 1 : 0)) - (movementManager.move.x * travelLimit.x);
             bobPosition.y = (curveSin * bobLimit.y) - (movementManager.movement.y * travelLimit.y);
             bobPosition.z = -(movementManager.move.y * travelLimit.y);
-            
+
         }
         else
         {
@@ -368,7 +377,7 @@ public class GunData : MonoBehaviour
     /// </summary>
     private void BobRotation()
     {
-        if(isAiming == false)
+        if (isAiming == false)
         {
             bobEulerRotation.x = (movementManager.move != Vector2.zero ? bobMultiplier.x * (Mathf.Sin(2 * speedCurve)) : bobMultiplier.x * (Mathf.Cos(2 * speedCurve) / 2));
             bobEulerRotation.y = (movementManager.move != Vector2.zero ? bobMultiplier.y * curveCos : 0);
@@ -389,7 +398,7 @@ public class GunData : MonoBehaviour
     private void CompositePositionRoation()
     {
 
-        zGunRecoil = Vector3.Lerp(zGunRecoil,  Vector3.zero, zRecoilSmoothing * Time.deltaTime);
+        zGunRecoil = Vector3.Lerp(zGunRecoil, Vector3.zero, zRecoilSmoothing * Time.deltaTime);
         transform.localPosition = Vector3.Lerp(transform.localPosition, swayPos + bobPosition + zGunRecoil, smooth * Time.deltaTime);
 
         recoilRotation = Vector3.Lerp(recoilRotation, Vector3.zero, smooth * Time.deltaTime);

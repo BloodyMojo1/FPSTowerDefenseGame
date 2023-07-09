@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class WeaponComplete : MonoBehaviour
 {
@@ -13,7 +14,9 @@ public class WeaponComplete : MonoBehaviour
 
     [SerializeField] private List<WeaponParts> defaultWeaponPartList;
 
+
     private WeaponBody weaponBody;
+    [SerializeField] private WeaponPartList weaponPartList;
     private Dictionary<WeaponParts.PartType, AttachWeaponPart> attachedWeaponPartDic;
 
     private void Awake()
@@ -30,10 +33,7 @@ public class WeaponComplete : MonoBehaviour
             };
         }
 
-        foreach(WeaponParts weaponParts in defaultWeaponPartList)
-        {
-            SetPart(weaponParts);
-        }
+
     }
 
     public void SetPart(WeaponParts weaponParts)
@@ -57,4 +57,33 @@ public class WeaponComplete : MonoBehaviour
         attachedWeaponPartDic[weaponParts.partType] = attachedWeaponPart;
     }
 
+    public WeaponParts GetWeaponParts(WeaponParts.PartType partType)
+    {
+        AttachWeaponPart attachWeaponPart = attachedWeaponPartDic[partType];
+        return attachWeaponPart.weaponParts;
+    }
+
+    public WeaponBodyType GetWeaponBody()
+    {
+        return weaponBody.GetWeaponBody();
+    }
+
+    public void changePart(WeaponParts.PartType partType, WeaponParts weaponPart)
+    {
+        AttachWeaponPart attachWeaponPart = attachedWeaponPartDic[partType]; //if part
+        for(int i = 0; i < weaponPartList.GetWeaponPartList(partType).Count; i++)
+        {
+            if(weaponPart == weaponPartList.GetWeaponPartList(partType)[i])
+            {
+                if (attachWeaponPart.weaponParts == null)
+                {
+                    SetPart(weaponPartList.GetWeaponPartList(partType)[i]);
+                }
+                else
+                {
+                    SetPart(weaponPartList.GetWeaponPartList(partType)[i]);
+                }
+            }
+        }
+    }
 }
