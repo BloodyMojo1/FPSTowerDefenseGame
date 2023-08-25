@@ -8,7 +8,6 @@ using UnityEngine;
 public class ShopLoot : ScriptableObject
 {
     public Sprite lootSprite;
-    public GameObject lootModel; //change to scriptable object
     public WeaponBodyType weaponBodyType;
     public WeaponParts weaponParts;
 

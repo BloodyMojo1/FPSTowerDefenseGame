@@ -98,6 +98,15 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""NextSightPos"",
+                    ""type"": ""Value"",
+                    ""id"": ""4c5956e5-9505-4ac9-a43c-4ee3931eba4c"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -254,6 +263,17 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                     ""action"": ""Aim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d50bc8cb-13cf-4b76-a71f-57b883af7eef"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""NextSightPos"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -287,6 +307,7 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
         m_Player_Shoot = m_Player.FindAction("Shoot", throwIfNotFound: true);
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
+        m_Player_NextSightPos = m_Player.FindAction("NextSightPos", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -354,6 +375,7 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Shoot;
     private readonly InputAction m_Player_Reload;
     private readonly InputAction m_Player_Aim;
+    private readonly InputAction m_Player_NextSightPos;
     public struct PlayerActions
     {
         private @InputMaster m_Wrapper;
@@ -366,6 +388,7 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
         public InputAction @Shoot => m_Wrapper.m_Player_Shoot;
         public InputAction @Reload => m_Wrapper.m_Player_Reload;
         public InputAction @Aim => m_Wrapper.m_Player_Aim;
+        public InputAction @NextSightPos => m_Wrapper.m_Player_NextSightPos;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -399,6 +422,9 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                 @Aim.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
                 @Aim.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
                 @Aim.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @NextSightPos.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnNextSightPos;
+                @NextSightPos.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnNextSightPos;
+                @NextSightPos.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnNextSightPos;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -427,6 +453,9 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
                 @Aim.started += instance.OnAim;
                 @Aim.performed += instance.OnAim;
                 @Aim.canceled += instance.OnAim;
+                @NextSightPos.started += instance.OnNextSightPos;
+                @NextSightPos.performed += instance.OnNextSightPos;
+                @NextSightPos.canceled += instance.OnNextSightPos;
             }
         }
     }
@@ -450,5 +479,6 @@ public partial class @InputMaster : IInputActionCollection2, IDisposable
         void OnShoot(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
+        void OnNextSightPos(InputAction.CallbackContext context);
     }
 }

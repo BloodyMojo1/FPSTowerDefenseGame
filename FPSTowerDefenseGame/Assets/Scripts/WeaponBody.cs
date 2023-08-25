@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,14 +14,11 @@ public class WeaponBody : MonoBehaviour
 
     }
 
-    [SerializeField] private WeaponBodyType weaponBody;
+    public WeaponBodyType weaponBody;
+    public WeaponPartList weaponPartList;
 
     [SerializeField] private List<PartTypeAttachPoint> partTypeAttachPointList;
 
-    public WeaponBodyType GetWeaponBody()
-    {
-        return weaponBody;
-    }
 
     public List<PartTypeAttachPoint> GetPartTypeAttachPointList()
     {

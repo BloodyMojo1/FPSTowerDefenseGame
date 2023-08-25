@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c2076efbaa23cb49aba027d02ec9fb7, type: 3}
   m_Name: RileBPartList
   m_EditorClassIdentifier: 
-  weaponPartList:
-  - {fileID: 11400000, guid: 3e21ca2b3e7966e448ca4970b55a4fd3, type: 2}
+  weaponPartList: []

@@ -3,27 +3,31 @@ using UnityEngine;
 public class CurrencyManager : MonoBehaviour
 {
     [SerializeField] private GameObject playerCam;
-    private GameObject currentWeapon;
-
-    public static CurrencyManager main;
-    private GunData gunDataScript;
+   
     private WeaponComplete weaponComplete;
-
+    private GameObject currentWeapon;
+    private GunData gunDataScript;
+    
+    public static CurrencyManager main;
+    
     public int currency;
+    public bool attachmentAvailable;
+
 
     private void Awake()
     {
-        currentWeapon = playerCam.transform.GetChild(0).GetChild(0).gameObject;
+        currentWeapon = playerCam.transform.GetChild(0).GetChild(1).gameObject;
         main = this;
     }
 
     private void Start()
     {
-        currency = 100;
+        currency = 3000;
     }
 
     private void Update()
     {
+        //Gets new Weapon components if spawned
         if (gunDataScript == null)
         {
             gunDataScript = gameObject.GetComponentInChildren<GunData>();
@@ -36,28 +40,51 @@ public class CurrencyManager : MonoBehaviour
         currency += amount;
     }
 
-    public bool SpendCurrency(int amount, GameObject lootModel, ShopLoot.PrefabType prefabType, WeaponParts weaponParts)
+
+    /// <summary>
+    /// Gets ShopLoot Values from each ShopManager Button
+    /// Spawns lootPrefab into world if it meets requirements
+    /// </summary>
+    
+    //need to check if 
+    public bool SpendCurrency(int amount, GameObject lootPrefab, ShopLoot.PrefabType prefabType, WeaponParts weaponParts)
     {
         if (amount <= currency)
         {
-            currency -= amount;
+            if (currentWeapon.name == lootPrefab.name)
+            {
+                Debug.Log("Already have this Weapon");
+                return false;
+            } 
+
+            if (weaponComplete.weaponPartName == lootPrefab.name)
+            {
+                Debug.Log("Already have this Attachment");
+                return false;
+            }
 
             if (prefabType == ShopLoot.PrefabType.GunPrefab)
             {
+                //weaponComplete.changeBulletStats();
                 Destroy(currentWeapon.gameObject);
-                currentWeapon = Instantiate(lootModel, currentWeapon.transform.position, currentWeapon.transform.rotation, playerCam.transform.GetChild(0));
+                currentWeapon = Instantiate(lootPrefab, currentWeapon.transform.position, currentWeapon.transform.rotation, playerCam.transform.GetChild(0));
+                currentWeapon.name = currentWeapon.name.Replace("(Clone)", "");
             }
             else
             {
-                //Get weapon complete SetPart should therically work by destroying part, then set part 
-                //Need to check if part is in part list
-
-
-                //weaponComplete.SetPart(weaponParts);
-
+                //Spawns weapon part onto currentWeapon body
                 weaponComplete.changePart(weaponParts.partType, weaponParts);
+
+                if (attachmentAvailable == false) 
+                {
+                    Debug.Log("Attachment Not Available");
+                    return false;
+                }
+                attachmentAvailable = false;
+
             }
 
+            currency -= amount;
             return true;
         }
         else

@@ -18,5 +18,5 @@ MonoBehaviour:
   weaponParts: {fileID: 0}
   lootName: Scorpion Evo 3
   dropChance: 100
-  itemCost: 100
+  itemCost: 200
   prefabType: 0

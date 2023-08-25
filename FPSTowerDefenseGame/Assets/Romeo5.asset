@@ -12,5 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26975eef86db6fd49a2ae66064adc072, type: 3}
   m_Name: Romeo5
   m_EditorClassIdentifier: 
+  scopeMagnification: 1
+  nonZoomedFOV: 45
+  bulletSpeed: 200
+  bulletDropOffRange: 50
+  weaponDamage: 20
+  xSpread: 0
+  ySpread: 0
+  horizontalRecoil: 30
+  verticalRecoil: 30
+  reloadTime: -1
+  aimDownSightSpeed: 5
+  drawTimeSpeed: 5
+  muzzleFlashSize: 0
+  magCapicity: 5
+  scopeGunRotation: {x: 0, y: 0, z: 0}
   partType: 5
-  prefab: {fileID: 6279321956296662453, guid: 83aed6ea477e1c64393618ded9343de8, type: 3}
+  prefab: {fileID: 5595176135881868262, guid: 518d32099ab1e2d408457fcf9c9e4341, type: 3}

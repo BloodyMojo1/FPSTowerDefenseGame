@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: RileAPartLIst
   m_EditorClassIdentifier: 
   weaponPartList:
-  - {fileID: 11400000, guid: 3e21ca2b3e7966e448ca4970b55a4fd3, type: 2}
   - {fileID: 11400000, guid: 096fb393e1a36a14d81b59a2f42c4343, type: 2}
+  - {fileID: 11400000, guid: 9fe70b5d031ba66488d7eb9535f2e1b3, type: 2}
+  - {fileID: 11400000, guid: e88a6228092e6c04e8e39320bb24e352, type: 2}
+  - {fileID: 11400000, guid: 6c2d82e9e16bcb84eba8990e6db55ff1, type: 2}

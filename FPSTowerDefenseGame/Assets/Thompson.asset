@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Thompson
   m_EditorClassIdentifier: 
   body: 1
-  prefab: {fileID: 705449708385593513, guid: 5832e69faeb103d40baa59eb959253ed, type: 3}
+  prefab: {fileID: 5752663561646823065, guid: 5832e69faeb103d40baa59eb959253ed, type: 3}
   prefabUI: {fileID: 0}
   weaponPartList: {fileID: 11400000, guid: 0728815cbf6641a4db6a322cc5b343c3, type: 2}

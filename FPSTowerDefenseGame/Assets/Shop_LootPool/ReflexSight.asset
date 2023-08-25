@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0c84294ff93bdd4fbbd4e3b0eafb28c, type: 3}
+  m_Name: ReflexSight
+  m_EditorClassIdentifier: 
+  lootSprite: {fileID: 0}
+  weaponBodyType: {fileID: 0}
+  weaponParts: {fileID: 11400000, guid: 6c2d82e9e16bcb84eba8990e6db55ff1, type: 2}
+  lootName: ReflexSight
+  dropChance: 100
+  itemCost: 100
+  prefabType: 1

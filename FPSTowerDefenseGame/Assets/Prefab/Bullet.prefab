@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8027707581796438825}
   - component: {fileID: 7193065363684408704}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,11 +48,15 @@ MonoBehaviour:
   bulletHole: {fileID: 8939320498815530081, guid: 5618a42584331804aa225c685f408870, type: 3}
   shootForce: 200
   maxDamage: 50
-  maxRange: 200
+  maxBulletDropOffRange: 250
+  currentDamage: 0
   predictionStepsPerFrame: 100
   bulletVelocity: {x: 0, y: 0, z: 20}
   penetrationValue: 1
   survivalRate: 0.25
+  bulletMask:
+    serializedVersion: 2
+    m_Bits: 119
 --- !u!1 &4751565003340100644
 GameObject:
   m_ObjectHideFlags: 0
@@ -65,13 +69,13 @@ GameObject:
   - component: {fileID: 8649685031858672065}
   - component: {fileID: 2343276746091176454}
   - component: {fileID: 4303512828432676727}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BulletModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4127799782540835926
 Transform:
   m_ObjectHideFlags: 0

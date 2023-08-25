@@ -28,6 +28,7 @@ public class Crouch : PlayerBaseState
         }
         if(movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
 
+        if (movement.slopeAngle > movement.controller.slopeLimit) return;
         movement.targetSpeed = Mathf.MoveTowards(movement.targetSpeed, movement.crouchSpeed, movement.slidingDistance * Time.deltaTime); //Slowly makes current speed lose value towards crouch speed
     }
 

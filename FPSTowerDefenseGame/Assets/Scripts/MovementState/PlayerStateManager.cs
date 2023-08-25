@@ -12,6 +12,7 @@ public class PlayerStateManager : MonoBehaviour
     public Jump jump = new Jump();
     public Crouch crouch = new Crouch();
     public Sliding sliding = new Sliding();
+    public AimingWalk aimingWalk = new AimingWalk();
 
 
     public InputMaster controls;
@@ -33,17 +34,21 @@ public class PlayerStateManager : MonoBehaviour
     [HideInInspector]
     public float targetHeight;
 
-    public float targetSpeed;
 
+    
+    public float targetSpeed;
     public float currentSpeed;
 
     [Header("Base Parameters")]
 
+    public float aimingWalkSpeed;
     public float baseSpeed = 12f;
     public float baseHeight = 1f;
 
     [SerializeField, Range(0, 1)] private float airSpeed = 0.5f;
     [SerializeField] private float heightSpeedChange = 1f;
+
+    public bool isWalking = false;
 
     [Header("Crouch Variables Parameters")]
 
@@ -58,7 +63,7 @@ public class PlayerStateManager : MonoBehaviour
     public float sprintSpeed = 24f;
 
     //[HideInInspector]
-    public bool isSprinting;
+    public bool isSprinting = false;
 
     [Header("Jump Parameters")]
 
@@ -167,7 +172,6 @@ public class PlayerStateManager : MonoBehaviour
             camPos.y = transform.TransformPoint(new Vector3(0f, controller.height - 0.2f, 0f)).y;
             fpsCam.transform.position = camPos;
         }
-        currentSpeed = targetSpeed;
     }
 
     /// <summary>
@@ -181,6 +185,11 @@ public class PlayerStateManager : MonoBehaviour
 
     private void Movement()
     {
+        if (currentSpeed != targetSpeed)
+        {
+            currentSpeed = targetSpeed;
+        }
+
         move = controls.Player.Movment.ReadValue<Vector2>(); //Read input values
 
         movement = ((move.y * transform.forward) + (move.x * transform.right)) * currentSpeed; //seperate the input values into different directions

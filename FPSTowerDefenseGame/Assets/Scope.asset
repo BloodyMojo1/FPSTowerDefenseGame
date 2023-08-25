@@ -12,5 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26975eef86db6fd49a2ae66064adc072, type: 3}
   m_Name: Scope
   m_EditorClassIdentifier: 
-  partType: 5
-  prefab: {fileID: 707168608968389046, guid: 05a502b6819f02c4085e4bb8e4e8d3d2, type: 3}
+  scopeMagnification: 1
+  nonZoomedFOV: 60
+  bulletSpeed: 0
+  bulletDropOffRange: 0
+  weaponDamage: 0
+  xSpread: 0
+  ySpread: 0
+  horizontalRecoil: 0
+  verticalRecoil: 0
+  reloadTime: 0
+  aimDownSightSpeed: 0
+  drawTimeSpeed: 0
+  muzzleFlashSize: 0
+  magCapicity: 0
+  scopeGunRotation: {x: 0, y: 0, z: 45}
+  partType: 6
+  prefab: {fileID: 893002076850929255, guid: 876aff86e6f73ee45a55a3609d181ba2, type: 3}

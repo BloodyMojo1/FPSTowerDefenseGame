@@ -5,77 +5,116 @@ public class GunData : MonoBehaviour
 {
     public InputMaster controls;
     private MouseLook mouse;
-    [SerializeField]
     private PlayerStateManager movementManager;
-
-    public Camera fpsCam;
+    private Camera playerCam;
+    private Camera weaponCam;
+    private WeaponComplete weaponComplete;
+    public Camera scopeCam;
 
     public GameObject muzzleFlash;
 
-    public Transform attactPoint;
+    private GameObject attackPoint;
+    private GameObject endOfBarrelPoint;
+    public GameObject currentBullet;
 
-
+    private Vector3 previousAttackPos;
     [Header("Shooting Stats")]
 
     public GameObject bullet;
-
 
     [SerializeField] private bool allowButtonHold;
 
     [SerializeField] private float bulletsPerTap;
     [SerializeField] private float timeBetweenShooting;
-    [SerializeField] private float spread;
+
+    [SerializeField] private float spreadX;
+    [SerializeField] private float spreadY;
+
+    [HideInInspector, Range(0f, 100f)]
+    public float xSpreaadReduction = 0, ySpreadReduction = 0;
+
+    [SerializeField] private float weaponCheckDistance;
+
+    private float maxRecoilTimer = 0.1f;
+    private float lerpPos;
+    RaycastHit hit;
 
     [HideInInspector]
     public int bulletsShot;
-
     [HideInInspector]
     public bool shooting;
     private bool readyToShoot;
 
+    private Vector3 weaponHitRotation;
+    private Vector3 weaponHitPosition;
+
     [Header("Reload Stats")]
 
-    public TextMeshProUGUI ammunitionDisplay;
+    private TextMeshProUGUI ammunitionDisplay;
 
-    [SerializeField] private int magazineSize;
+    public int magazineSize;
 
-    [SerializeField] private float reloadTime;
+    public float reloadTime;
 
-    private int bulletsLeft;
-
-    private bool reloading;
+    [HideInInspector]
+    public int bulletsLeft;
+    [HideInInspector]
+    public bool reloading;
 
     [Header("Aiming System")]
-    [SerializeField] public Vector3 normalLocalPosition;
-    [SerializeField] private Vector3 aimingLocalPosition;
-    [SerializeField] private Vector3 desiredPosition;
+     
+    [Range(0f, 100f)]
+    public float recoilAimReduction;
 
-    [SerializeField] private float aimSmoothing = 10;
+    public float aimingOffset;
+    public float aimDownSightSpeed = 10;
+    public float weaponDrawTime;
+
+    private GameObject sightTargetPos;
+    private Vector3 currentScopeGunRot;
+    private Vector3 desiredPosition;
+
+    [HideInInspector]
+    public Vector3 sightPos;
+    [HideInInspector]
+    public Vector3 desiredGunRotation;
+
+    [Space(20)]
+    public Vector3 normalLocalPosition;
+    public Vector3 aimingLocalPosition;
+    [SerializeField] private Vector3 walkLocalPositon;
+    
+
+
+
+    [Space(20)]
+    [SerializeField] private Vector3 sprintLocalPosition;
+    [SerializeField] private Vector3 sprintLocalRotation;
+
+    [Space(20)]
+    [SerializeField] private Vector3 wallHitLocalPosition;
+    [SerializeField] private Vector3 wallHitLocalRotation;
 
     [HideInInspector]
     public bool isAiming;
 
-
     [Header("Recoil System")]
+    [HideInInspector, Range(0f, 100f)]
+    public float horizontalRecoilReduction = 0, verticalRecoilReduction = 0;
 
+    [Space(10)]
     public AnimationCurve yRecoilPattern;
     public AnimationCurve xRecoilPattern;
-    public AnimationCurve yADSRecoilPattern;
-    public AnimationCurve xADSRecoilPattern;
 
     public float xRandomRecoil;
     public float yRandomRecoil;
     public float zRandomRecoil;
 
-    public float xADSRandomRecoil;
-    public float yADSRandomRecoil;
-    public float zADSRandomRecoil;
-
     public float snapiness;
     public float maxPatternRecoilSpread;
 
-    [HideInInspector]
     private float bulletTimer;
+
     [HideInInspector]
     public int bulletsShotInARow;
     [HideInInspector]
@@ -83,45 +122,34 @@ public class GunData : MonoBehaviour
 
     private Vector3 zGunRecoil;
     [SerializeField] private float xRecoilRotation;
-    [SerializeField] private float xADSRecoilRotation;
     [SerializeField] private float zRecoilSmoothing;
     private Vector3 recoilRotation;
 
     [Header("Weapon Sway")]
+    [Range(0f, 100f)]
+    [SerializeField] private float swayAimReduction;
+
     [SerializeField] private float swayStep = 0.01f;
     [SerializeField] private float maxStepDistance = 0.06f;
 
     [SerializeField] private float roatationStep = 4f;
     [SerializeField] private float maxRoatationStep = 5f;
 
-    [Space(10)]
-    [SerializeField] private float aimSwayStep = 0.01f;
-    [SerializeField] private float aimMaxStepDistance = 0.06f;
-
-    [SerializeField] private float aimRoatationStep = 2f;
-    [SerializeField] private float aimMaxRoatationStep = 3f;
-
     private Vector3 swayPos;
-    Vector3 swayEulerRot;
+    private Vector3 swayEulerRot;
 
-    float smooth = 10f;
-    float smoothRot = 12f;
+    private float smooth = 10f;
 
     [Header("Bobbing")]
+    [Range(0f, 100f)]
+    [SerializeField] private float bobAimReduction;
+
     [SerializeField] private float bobSpeed = 2;
+    [SerializeField] private float aimBobSpeed = 4;
 
     [SerializeField] private Vector3 travelLimit = Vector3.one * 0.025f;
     [SerializeField] private Vector3 bobLimit = Vector3.one * 0.01f;
     [SerializeField] private Vector3 bobMultiplier;
-
-
-    [Space(10)]
-    [SerializeField] private float aimBobSpeed = 4;
-
-    [SerializeField] private Vector3 aimTravelLimit = Vector3.one * 0.025f;
-    [SerializeField] private Vector3 aimBobLimit = Vector3.one * 0.01f;
-    [SerializeField] private Vector3 aimBobMultiplier;
-
 
     private float currentBobSpeed;
     private float speedCurve;
@@ -131,16 +159,28 @@ public class GunData : MonoBehaviour
     private Vector3 bobPosition;
     private Vector3 bobEulerRotation;
 
-
-
     private void Awake()
     {
-        Transform rootParent = gameObject.transform.root;
         GameObject canvas = GameObject.FindGameObjectWithTag("UI");
-        movementManager = rootParent.GetComponent<PlayerStateManager>();
-        fpsCam = rootParent.transform.GetChild(1).GetChild(0).GetComponent<Camera>();
-        attactPoint = rootParent.transform.GetChild(1).GetChild(0).GetChild(1);
         ammunitionDisplay = canvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+
+        Transform rootParent = gameObject.transform.root;
+        movementManager = rootParent.GetComponent<PlayerStateManager>();
+        weaponCam = gameObject.GetComponentInParent<Camera>();
+        playerCam = weaponCam.transform.parent.GetComponent<Camera>();
+        scopeCam = playerCam.transform.GetChild(1).GetComponent<Camera>();
+        sightTargetPos = weaponCam.transform.GetChild(0).gameObject;
+
+        attackPoint = gameObject.transform.GetChild(1).gameObject;
+        previousAttackPos = attackPoint.transform.localPosition;
+        endOfBarrelPoint = gameObject.transform.GetChild(2).gameObject;
+
+
+        weaponComplete = gameObject.GetComponent<WeaponComplete>();
+        weaponComplete.scopeAimPositionList.Insert(0, aimingLocalPosition + new Vector3(0,0, aimingLocalPosition.z - aimingOffset));
+        weaponComplete.scopeGunRotationList.Insert(0, Vector3.zero);
+        sightPos = weaponComplete.scopeAimPositionList[(weaponComplete.scopeAimPositionList.IndexOf(sightPos) + 0) % weaponComplete.scopeAimPositionList.Count];
+        desiredGunRotation = weaponComplete.scopeGunRotationList[(weaponComplete.scopeGunRotationList.IndexOf(desiredGunRotation) + 0) % weaponComplete.scopeGunRotationList.Count];
 
 
         mouse = gameObject.GetComponentInParent<MouseLook>();
@@ -161,13 +201,25 @@ public class GunData : MonoBehaviour
         bulletTimer += Time.deltaTime;
         //Set ammo display
         if (ammunitionDisplay != null) ammunitionDisplay.SetText(bulletsLeft + " / " + magazineSize);
-
+        if (bulletsLeft > magazineSize) bulletsLeft = magazineSize;
 
         //Checks if player is consectuvely shooting before reseting pattern
         if (bulletTimer >= timeBetweenShooting + 0.2)
         {
             bulletsShotInARow = 0;
         }
+
+        if (bulletTimer >= maxRecoilTimer) mouse.ResetRecoil();
+
+
+
+        if (Physics.Raycast(attackPoint.transform.position, attackPoint.transform.forward, out hit, weaponCheckDistance))
+        {
+            lerpPos = 1 - (hit.distance / weaponCheckDistance);
+        }
+        else lerpPos = 0;
+
+        Mathf.Clamp01(lerpPos);
 
         DetermineAim();
         Sway();
@@ -176,11 +228,31 @@ public class GunData : MonoBehaviour
         BobRotation();
 
         CompositePositionRoation();
-
     }
 
     private void Input()
     {
+        //Cycles through scope pos/rot list 
+        if (controls.Player.NextSightPos.WasPerformedThisFrame())
+        {
+            float scrollDir = controls.Player.NextSightPos.ReadValue<Vector2>().normalized.y;
+            if (scrollDir >= 1)
+            {
+                Vector3 nextScopePos = weaponComplete.scopeAimPositionList[(weaponComplete.scopeAimPositionList.IndexOf(sightPos) + 1) % weaponComplete.scopeAimPositionList.Count];
+                Vector3 nextScopeGunRot = weaponComplete.scopeGunRotationList[(weaponComplete.scopeGunRotationList.IndexOf(desiredGunRotation) + 1) % weaponComplete.scopeGunRotationList.Count];
+                sightPos = nextScopePos;
+                desiredGunRotation = nextScopeGunRot;
+            }
+            else if (scrollDir <= -1)
+            {
+                Vector3 previousScopePos = weaponComplete.scopeAimPositionList[(weaponComplete.scopeAimPositionList.IndexOf(sightPos) + 1) % weaponComplete.scopeAimPositionList.Count];
+                Vector3 previousScopeGunRot = weaponComplete.scopeGunRotationList[(weaponComplete.scopeGunRotationList.IndexOf(desiredGunRotation) + 1) % weaponComplete.scopeGunRotationList.Count];
+                sightPos = previousScopePos;
+                desiredGunRotation = previousScopeGunRot;
+            }
+            currentScopeGunRot = desiredGunRotation;
+        }
+
         //Check if allowed to hold down the button
         if (allowButtonHold) shooting = controls.Player.Shoot.IsPressed();
         else shooting = controls.Player.Shoot.WasPerformedThisFrame();
@@ -190,13 +262,22 @@ public class GunData : MonoBehaviour
         {
             isAiming = true;
             if (currentBobSpeed != aimBobSpeed) currentBobSpeed = aimBobSpeed;
+            desiredGunRotation = currentScopeGunRot;
+            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, 45, Time.deltaTime * aimDownSightSpeed);
+            weaponCam.fieldOfView = Mathf.Lerp(weaponCam.fieldOfView, 45, Time.deltaTime * aimDownSightSpeed);
+
+            attackPoint.transform.localPosition = new Vector3(previousAttackPos.x, sightPos.y, previousAttackPos.z);
         }
         else
         {
             isAiming = false;
             if (currentBobSpeed != bobSpeed) currentBobSpeed = bobSpeed;
+            desiredGunRotation = Vector3.zero;
+            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, 60, Time.deltaTime * aimDownSightSpeed);
+            weaponCam.fieldOfView = Mathf.Lerp(weaponCam.fieldOfView, 60, Time.deltaTime * aimDownSightSpeed);
+            //desiredGunRotation = Vector3.zero;
+            attackPoint.transform.localPosition = previousAttackPos;
         }
-
 
         //Reload
         if (controls.Player.Reload.WasPressedThisFrame() && bulletsLeft < magazineSize && !reloading) Reload();
@@ -208,6 +289,8 @@ public class GunData : MonoBehaviour
         if (readyToShoot && shooting && !reloading && bulletsLeft > 0)
         {
             bulletsShot = 0;
+            mouse.ResetRecoil();
+            mouse.CalculateRecoil();
 
             Shoot();
         }
@@ -215,54 +298,64 @@ public class GunData : MonoBehaviour
 
     private void Shoot()
     {
+
         bulletTimer = 0;
         readyToShoot = false;
 
         //Calculates spread
-        float x = Random.Range(-spread, spread);
-        float y = Random.Range(-spread, spread);
+        float x = Random.Range(-spreadX, spreadX);
+        float y = Random.Range(-spreadY, spreadY);
+        x = x - (x * xSpreaadReduction) / 100;
+        y = y - (y * ySpreadReduction) / 100;
+
 
         //Calculates direction with spread.
-        Vector3 directionWithSpread = (fpsCam.transform.forward + fpsCam.transform.up * y + fpsCam.transform.right * x).normalized;
+        //Vector3 directionWithSpread = (fpsCam.transform.forward + fpsCam.transform.up * y + fpsCam.transform.right * x).normalized;
+        Vector3 directionWithSpread = (attackPoint.transform.forward + attackPoint.transform.up * y + attackPoint.transform.right * x).normalized;
 
         //Instantiate bullet in world
-        GameObject currentBullet = Instantiate(bullet, attactPoint.position, attactPoint.rotation);
+        currentBullet = Instantiate(bullet, attackPoint.transform.position, attackPoint.transform.rotation);
+        weaponComplete.changeBulletStats(currentBullet.gameObject);
+
         //Rotates bullet to shoot direction
         currentBullet.transform.rotation = Quaternion.LookRotation(directionWithSpread);
 
         //Instantiate muzzle flash
         if (muzzleFlash != null)
         {
-            var muzzleFlashObject = Instantiate(muzzleFlash, attactPoint.position, Quaternion.identity);
+            var muzzleFlashObject = Instantiate(muzzleFlash, endOfBarrelPoint.transform.position, Quaternion.identity);
             Destroy(muzzleFlashObject, 4f);
         }
 
         bulletsLeft--;
-        bulletsShot++;
         bulletsShotInARow++;
+        bulletsShot++;
+
 
         //Invoke resetShot funtion (if not already invoked)
         if (allowInvoke)
         {
             allowInvoke = false;
+
             Invoke("ResetShoot", timeBetweenShooting);
-
-
 
             //Calculate recoil after bullet shot
             if (!isAiming)
             {
-                mouse.RecoilFire(xRandomRecoil, yRandomRecoil);
+                mouse.RecoilFire(xRandomRecoil - (xRandomRecoil * horizontalRecoilReduction / 100), yRandomRecoil - (yRandomRecoil * verticalRecoilReduction / 100));
                 zGunRecoil = new Vector3(0, 0, Random.Range(0, -zRandomRecoil));
                 recoilRotation = new Vector3(Random.Range(0, -xRecoilRotation), 0, 0);
             }
             else
             {
-                mouse.RecoilFire(xADSRandomRecoil, yADSRandomRecoil);
-                zGunRecoil = new Vector3(0, 0, Random.Range(0, -zADSRandomRecoil));
-                recoilRotation = new Vector3(Random.Range(0, -xADSRecoilRotation), 0, 0);
+                mouse.RecoilFire(xRandomRecoil - (xRandomRecoil * (horizontalRecoilReduction + recoilAimReduction) / (100 + recoilAimReduction)), yRandomRecoil - (yRandomRecoil * (verticalRecoilReduction + recoilAimReduction) / (100 + recoilAimReduction)));
+                var zAimReducedRecoil = zRandomRecoil - (zRandomRecoil * recoilAimReduction / 100);
+                var xAimReducedRecoilRot = xRecoilRotation - (xRecoilRotation * recoilAimReduction / 100);
+                zGunRecoil = new Vector3(0, 0, Random.Range(0, -zAimReducedRecoil));
+                recoilRotation = new Vector3(Random.Range(0, -xAimReducedRecoilRot), 0, 0);
             }
         }
+
 
         //if more than one bulletsPerTap make sure to repeat shoot function
         if (bulletsShot < bulletsPerTap && bulletsLeft > 0) Invoke("Shoot", timeBetweenShooting);
@@ -272,12 +365,25 @@ public class GunData : MonoBehaviour
     {
         //Calculates and moves gun postion to aim or hip fire
         Vector3 target = normalLocalPosition;
-        if (isAiming == true) target = aimingLocalPosition;
+        //if (movementManager.isSprinting == true) target = sprinLocaltPositon;
+        if (isAiming == true && lerpPos < 0.4 && lerpPos != 0)
+        {
+            desiredPosition = Vector3.Lerp(transform.localPosition, sightTargetPos.transform.localPosition + -sightPos + new Vector3(0, 0, aimingOffset), Time.deltaTime * aimDownSightSpeed);
+        }
+        else if (isAiming == true && lerpPos == 0)
+        {
+            desiredPosition = Vector3.Lerp(transform.localPosition, sightTargetPos.transform.localPosition + -sightPos + new Vector3(0, 0, aimingOffset), Time.deltaTime * aimDownSightSpeed);
+        }
+        else if (movementManager.isWalking == true && lerpPos == 0) target = walkLocalPositon;
+        else if (movementManager.isSprinting == true && lerpPos == 0) target = sprintLocalPosition;
 
-        desiredPosition = Vector3.Lerp(transform.localPosition, target, Time.deltaTime * aimSmoothing);
-
+        if (isAiming == false)
+        {
+            desiredPosition = Vector3.Lerp(transform.localPosition, target, Time.deltaTime * aimDownSightSpeed);
+        }
         transform.localPosition = desiredPosition;
     }
+
 
     private void ResetShoot()
     {
@@ -295,7 +401,6 @@ public class GunData : MonoBehaviour
     {
         bulletsLeft = magazineSize;
         reloading = false;
-
     }
 
     /// <summary>
@@ -308,16 +413,19 @@ public class GunData : MonoBehaviour
             Vector3 invertLook = mouse.mouseLook * -swayStep;
             invertLook.x = Mathf.Clamp(invertLook.x, -maxStepDistance, maxStepDistance);
             invertLook.y = Mathf.Clamp(invertLook.y, -maxStepDistance, maxStepDistance);
-            invertLook = desiredPosition + invertLook;
+            invertLook = transform.localPosition + invertLook;
 
             swayPos = invertLook;
         }
         else
         {
-            Vector3 invertLook = mouse.mouseLook * -aimSwayStep;
-            invertLook.x = Mathf.Clamp(invertLook.x, -aimMaxStepDistance, aimMaxStepDistance);
-            invertLook.y = Mathf.Clamp(invertLook.y, -aimMaxStepDistance, aimMaxStepDistance);
-            invertLook = desiredPosition + invertLook;
+            var reducedAimMaxStep = maxStepDistance - (maxStepDistance * swayAimReduction / 100);
+            var reducedAimSwayStep = swayStep - (swayStep * swayAimReduction / 100);
+
+            Vector3 invertLook = mouse.mouseLook * -reducedAimSwayStep;
+            invertLook.x = Mathf.Clamp(invertLook.x, -reducedAimMaxStep, reducedAimMaxStep);
+            invertLook.y = Mathf.Clamp(invertLook.y, -reducedAimMaxStep, reducedAimMaxStep);
+            invertLook = transform.localPosition + invertLook;
 
             swayPos = invertLook;
         }
@@ -339,9 +447,12 @@ public class GunData : MonoBehaviour
         }
         else
         {
-            Vector2 invertLook = mouse.mouseLook * -aimRoatationStep;
-            invertLook.x = Mathf.Clamp(invertLook.x, -aimMaxRoatationStep, aimMaxRoatationStep);
-            invertLook.y = Mathf.Clamp(invertLook.y, -aimMaxRoatationStep, aimMaxRoatationStep);
+            var reducedAimRotStep = roatationStep - (roatationStep * swayAimReduction / 100);
+            var reducedAimMaxRotStep = maxRoatationStep - (maxRoatationStep * swayAimReduction / 100);
+
+            Vector2 invertLook = mouse.mouseLook * -reducedAimRotStep;
+            invertLook.x = Mathf.Clamp(invertLook.x, -reducedAimMaxRotStep, reducedAimMaxRotStep);
+            invertLook.y = Mathf.Clamp(invertLook.y, -reducedAimMaxRotStep, reducedAimMaxRotStep);
 
             swayEulerRot = new Vector3(invertLook.y, invertLook.x, invertLook.x);
         }
@@ -366,9 +477,12 @@ public class GunData : MonoBehaviour
         }
         else
         {
-            bobPosition.x = (curveCos * aimBobLimit.x * (movementManager.isGrounded ? 1 : 0)) - (movementManager.move.x * aimTravelLimit.x);
-            bobPosition.y = (curveSin * aimBobLimit.y) - (movementManager.movement.y * aimTravelLimit.y);
-            bobPosition.z = -(movementManager.move.y * aimTravelLimit.y);
+            var ruducedAimBobLimit = bobLimit - (bobLimit * bobAimReduction / 100);
+            var reducedAimTravelLimit = travelLimit - (travelLimit * bobAimReduction / 100);
+
+            bobPosition.x = (curveCos * ruducedAimBobLimit.x * (movementManager.isGrounded ? 1 : 0)) - (movementManager.move.x * reducedAimTravelLimit.x);
+            bobPosition.y = (curveSin * ruducedAimBobLimit.y) - (movementManager.movement.y * reducedAimTravelLimit.y);
+            bobPosition.z = -(movementManager.move.y * reducedAimTravelLimit.y);
         }
     }
 
@@ -385,9 +499,11 @@ public class GunData : MonoBehaviour
         }
         else
         {
-            bobEulerRotation.x = (movementManager.move != Vector2.zero ? aimBobMultiplier.x * (Mathf.Sin(2 * speedCurve)) : aimBobMultiplier.x * (Mathf.Cos(2 * speedCurve) / 2));
-            bobEulerRotation.y = (movementManager.move != Vector2.zero ? aimBobMultiplier.y * curveCos : 0);
-            bobEulerRotation.z = (movementManager.move != Vector2.zero ? aimBobMultiplier.z * curveCos * movementManager.move.x : 0);
+            var reducedAimBobMultiplier = bobMultiplier - (bobMultiplier * bobAimReduction / 100);
+
+            bobEulerRotation.x = (movementManager.move != Vector2.zero ? reducedAimBobMultiplier.x * (Mathf.Sin(2 * speedCurve)) : reducedAimBobMultiplier.x * (Mathf.Cos(2 * speedCurve) / 2));
+            bobEulerRotation.y = (movementManager.move != Vector2.zero ? reducedAimBobMultiplier.y * curveCos : 0);
+            bobEulerRotation.z = (movementManager.move != Vector2.zero ? reducedAimBobMultiplier.z * curveCos * movementManager.move.x : 0);
         }
 
     }
@@ -397,19 +513,33 @@ public class GunData : MonoBehaviour
     /// </summary>
     private void CompositePositionRoation()
     {
+        Debug.DrawRay(attackPoint.transform.position, attackPoint.transform.forward * weaponCheckDistance, Color.blue);
+
+        weaponHitRotation = Vector3.Lerp(Vector3.zero, wallHitLocalRotation, lerpPos);
+        weaponHitPosition = Vector3.Lerp(Vector3.zero, wallHitLocalPosition, lerpPos);
+
+
+        if (isAiming == true && lerpPos < 0.4)
+        {
+            Debug.Log("Keep aiming");
+            weaponHitPosition = Vector3.zero;
+            weaponHitRotation = Vector3.zero;
+
+        }
 
         zGunRecoil = Vector3.Lerp(zGunRecoil, Vector3.zero, zRecoilSmoothing * Time.deltaTime);
-        transform.localPosition = Vector3.Lerp(transform.localPosition, swayPos + bobPosition + zGunRecoil, smooth * Time.deltaTime);
+        transform.localPosition = Vector3.Lerp(transform.localPosition, swayPos + bobPosition + zGunRecoil + weaponHitPosition, smooth * Time.deltaTime);
 
         recoilRotation = Vector3.Lerp(recoilRotation, Vector3.zero, smooth * Time.deltaTime);
-        transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(swayEulerRot) * Quaternion.Euler(bobEulerRotation) * Quaternion.Euler(recoilRotation), Time.deltaTime * smoothRot);
 
-        Vector3 attackSway = ((swayPos + bobPosition) - desiredPosition) + new Vector3(0, 0, 0.2f);
-        attactPoint.transform.localPosition = Vector3.Lerp(attactPoint.transform.localPosition, attackSway, smooth * Time.deltaTime);
-
-        //Slight randomness in Sway and bob will go along way. The movement is too repetivtive where u notice the loop.
-
-
+        if (movementManager.isSprinting == true && lerpPos == 0 && isAiming == false)
+        {
+            transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(swayEulerRot) * Quaternion.Euler(bobEulerRotation) * Quaternion.Euler(recoilRotation) * Quaternion.Euler(sprintLocalRotation) * Quaternion.Euler(weaponHitRotation), Time.deltaTime * weaponDrawTime);
+        }
+        else
+        {
+            transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(swayEulerRot) * Quaternion.Euler(bobEulerRotation) * Quaternion.Euler(recoilRotation) * Quaternion.Euler(desiredGunRotation) * Quaternion.Euler(weaponHitRotation), Time.deltaTime * weaponDrawTime);
+        }
     }
 
     private void OnEnable()

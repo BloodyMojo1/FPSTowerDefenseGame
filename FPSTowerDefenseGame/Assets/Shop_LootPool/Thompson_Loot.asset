@@ -13,10 +13,9 @@ MonoBehaviour:
   m_Name: Thompson_Loot
   m_EditorClassIdentifier: 
   lootSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  lootModel: {fileID: 2812824324135125376, guid: 5832e69faeb103d40baa59eb959253ed, type: 3}
   weaponBodyType: {fileID: 11400000, guid: 705880815bd21e0478ee2d6f7307d981, type: 2}
   weaponParts: {fileID: 0}
   lootName: Thompson
   dropChance: 100
-  itemCost: 100
+  itemCost: 500
   prefabType: 0

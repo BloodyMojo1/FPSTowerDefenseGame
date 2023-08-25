@@ -7,10 +7,10 @@ public class Bullet : MonoBehaviour
     [SerializeField] private GameObject bulletHole;
 
     [Header("Bullet Stats")]
-
-    [SerializeField] private float shootForce;
-    [SerializeField] private float maxDamage = 50;
-    [SerializeField] private float maxRange;
+    private float baseBulletSpeed;
+    public float shootForce;
+    public float maxDamage = 50;
+    public float maxBulletDropOffRange;
     
 
     public int currentDamage;
@@ -21,7 +21,7 @@ public class Bullet : MonoBehaviour
     [Header("Bullet Trajectory")]
     [SerializeField] private int predictionStepsPerFrame = 6;
     
-    [SerializeField] private Vector3 bulletVelocity;
+     [SerializeField] private Vector3 bulletVelocity;
 
     [Header("Wall Penetraion")]
     
@@ -41,8 +41,11 @@ public class Bullet : MonoBehaviour
     private Vector3 lastPosition;
     private Vector3 point2;
 
+    [SerializeField] private LayerMask bulletMask;
+
     private void Awake()
-    { 
+    {
+        baseBulletSpeed = shootForce;
         //targetSpawnerScript = spawner.GetComponent<TargetMiniGame>();
     }
 
@@ -52,15 +55,19 @@ public class Bullet : MonoBehaviour
         lastPosition = transform.position;
         bulletVelocity = this.transform.forward * shootForce;
         currentDamage = Mathf.RoundToInt(maxDamage);
+        baseBulletSpeed = shootForce;
     }
 
     private void Update()
     {
         DamageFallOff();
+        //Debug.Log(currentDamage);
     }
 
     private float FixedUpdate()
     {
+
+
         float stepSize = 1.0f / predictionStepsPerFrame;
         Vector3 point1 = this.transform.position; //Calculates new start position
 
@@ -69,7 +76,7 @@ public class Bullet : MonoBehaviour
             bulletVelocity += Physics.gravity * stepSize * Time.deltaTime; //Calculates gravity overtime 
             point2 = point1 + bulletVelocity * stepSize * Time.deltaTime; //Calculates pridicted foward point with gravity
 
-            hitInfoB = Physics.RaycastAll(point2, -bulletVelocity, (point2 - point1).magnitude); //Raycasts a point on all backward facing colliders
+            hitInfoB = Physics.RaycastAll(point2, -bulletVelocity, (point2 - point1).magnitude, bulletMask); //Raycasts a point on all backward facing colliders
             for (int i = 0; i < hitInfoB.Length; i++)
             {
                 exitPoint = hitInfoB[0].point; //Adds new exit point at new point
@@ -82,10 +89,10 @@ public class Bullet : MonoBehaviour
                     if (Random.value > survivalChance) //Checks if bullet can survive
                     {
                         obstacleDistance = Vector3.Distance(entryPoint, exitPoint); //finds the distance between entry,exit points
-                        
+
                         //float maxPen = wallPenetration.maxPenetrationAmount - -penetrationValue; //Calculates a lower pen distance
                         obstacleDistance = wallPenetration.maxPenetrationAmount + obstacleDistance; //Creates new distance to beat 
-                        if (penetrationValue >= obstacleDistance) 
+                        if (penetrationValue >= obstacleDistance)
                         {
                             int _ObstacleDistance = Mathf.RoundToInt(obstacleDistance);
 
@@ -102,7 +109,7 @@ public class Bullet : MonoBehaviour
             }
 
             //Raycasts a point on all forward facing colliders
-            hitInfoA = Physics.RaycastAll(point1, bulletVelocity, (point2 - point1).magnitude);
+            hitInfoA = Physics.RaycastAll(point1, bulletVelocity, (point2 - point1).magnitude, bulletMask);
             for (int i = 0; i < hitInfoA.Length; i++)
             {
                 entryPoint = hitInfoA[i].point;
@@ -141,7 +148,7 @@ public class Bullet : MonoBehaviour
 
         //Calculates bullet damage drop off
         float avalue = distanceTraveled;
-        float normal = Mathf.InverseLerp(0, maxRange, avalue);
+        float normal = Mathf.InverseLerp(0, maxBulletDropOffRange, avalue);
         float bvalue = Mathf.Lerp(maxDamage, 0, normal);
         currentDamage = Mathf.RoundToInt(bvalue);
 

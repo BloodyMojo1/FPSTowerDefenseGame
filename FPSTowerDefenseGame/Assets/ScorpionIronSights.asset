@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26975eef86db6fd49a2ae66064adc072, type: 3}
+  m_Name: ScorpionIronSights
+  m_EditorClassIdentifier: 
+  bulletSpeed: 0
+  bulletDropOffRange: 0
+  weaponDamage: 0
+  xSpread: 0
+  ySpread: 0
+  horizontalRecoil: 0
+  verticalRecoil: 0
+  reloadTime: 0
+  aimDownSightSpeed: 0
+  drawTimeSpeed: 0
+  muzzleFlashSize: 0
+  magCapicity: 0
+  scopeGunRotation: {x: 0, y: 0, z: 0}
+  partType: 5
+  prefab: {fileID: 3203427930988899319, guid: e60c976639fa77144b92a7ac5232e76f, type: 3}

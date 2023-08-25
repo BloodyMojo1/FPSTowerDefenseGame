@@ -67,25 +67,24 @@ public class ShopManager : MonoBehaviour
                 {
                     int cacheLootCost = droppedItem.itemCost; //Gives each button their loot values
 
-                    //Check what enum ShopLoot is
-                    GameObject cacheLootModel = null;
+                    //cache button values
+                    GameObject cacheLootPrefab = null;
                     ShopLoot.PrefabType cachePrefabType = droppedItem.prefabType;
                     WeaponParts cacheWeaponParts = droppedItem.weaponParts;
-                    //Debug.Log(droppedItem.weaponParts.partType);
-
+;
+                    //Changes game object loot model
                     if (droppedItem.weaponBodyType != null)
                     {
-                        cacheLootModel = droppedItem.weaponBodyType.prefab.gameObject;
+                        cacheLootPrefab = droppedItem.weaponBodyType.prefab.gameObject;
 
                     }
                     if (droppedItem.weaponParts != null)
                     {
-                        cacheLootModel = droppedItem.weaponParts.prefab.gameObject;
+                        cacheLootPrefab = droppedItem.weaponParts.prefab.gameObject;
                         
                     }
                     
-                    buttons[b].onClick.AddListener(() => BuyButton(cacheLootCost, cacheLootModel, cachePrefabType, cacheWeaponParts)); //Checks if button has been pressed
-                    Debug.Log(cacheWeaponParts);
+                    buttons[b].onClick.AddListener(() => BuyButton(cacheLootCost, cacheLootPrefab, cachePrefabType, cacheWeaponParts)); //Checks if button has been pressed
                 }
                 buttonText.SetText(System.Convert.ToString(droppedItem.name)); //Changes button name with loot option
             }
@@ -103,9 +102,9 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    public void BuyButton(int Cost, GameObject lootModel, ShopLoot.PrefabType prefabType, WeaponParts weaponParts)
+    public void BuyButton(int Cost, GameObject lootPrefab, ShopLoot.PrefabType prefabType, WeaponParts weaponParts)
     {
-        CurrencyManager.main.SpendCurrency(Cost, lootModel, prefabType, weaponParts);
+        CurrencyManager.main.SpendCurrency(Cost, lootPrefab, prefabType, weaponParts);
 
     }
 }
