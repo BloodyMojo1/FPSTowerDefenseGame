@@ -11,6 +11,8 @@ public class CurrencyManager : MonoBehaviour
     public static CurrencyManager main;
     
     public int currency;
+
+    [HideInInspector]
     public bool attachmentAvailable;
 
 
@@ -22,7 +24,7 @@ public class CurrencyManager : MonoBehaviour
 
     private void Start()
     {
-        currency = 3000;
+        currency = 100;
     }
 
     private void Update()

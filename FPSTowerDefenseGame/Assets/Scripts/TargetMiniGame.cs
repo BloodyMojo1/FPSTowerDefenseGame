@@ -35,7 +35,7 @@ public class TargetMiniGame : MonoBehaviour
         }
     }
 
-    public void test()
+    public void SubtractTargetCount()
     {
         targetCount--;
     }

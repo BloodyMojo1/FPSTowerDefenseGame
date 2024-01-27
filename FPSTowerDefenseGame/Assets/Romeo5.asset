@@ -27,5 +27,5 @@ MonoBehaviour:
   muzzleFlashSize: 0
   magCapicity: 5
   scopeGunRotation: {x: 0, y: 0, z: 0}
-  partType: 5
+  partType: 3
   prefab: {fileID: 5595176135881868262, guid: 518d32099ab1e2d408457fcf9c9e4341, type: 3}

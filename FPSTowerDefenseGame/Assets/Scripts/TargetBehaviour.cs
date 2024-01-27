@@ -32,7 +32,7 @@ public class TargetBehaviour : MonoBehaviour, IDamageable
         if (targetHealth.Health == 0)
         {
             
-            targetSpawner_Script.test();
+            targetSpawner_Script.SubtractTargetCount();
             Destroy(transform.parent.gameObject);
             CurrencyManager.main.IncreaseCurrency(currencyWorth);
         }

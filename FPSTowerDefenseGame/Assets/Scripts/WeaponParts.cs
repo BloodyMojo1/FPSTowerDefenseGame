@@ -23,14 +23,10 @@ public class WeaponParts : ScriptableObject
 
     public Vector3 scopeGunRotation;
 
-
-
     public enum PartType
     {
-        Barrel,
         Muzzel,
-        Underbarrel,
-        Stock,
+        SideRail,
         Grip,
         MainScope,
         SecondaryScope,

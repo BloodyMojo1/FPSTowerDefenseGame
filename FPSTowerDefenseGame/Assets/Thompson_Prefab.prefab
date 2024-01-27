@@ -2030,6 +2030,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6f62c07e3587964da4aecac14a51ca0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scopeCam: {fileID: 0}
   muzzleFlash: {fileID: 0}
   currentBullet: {fileID: 0}
   bullet: {fileID: 2175611902894894683, guid: ffda0ffe032a51645a3e6d930e9afc7c, type: 3}
@@ -2048,13 +2049,13 @@ MonoBehaviour:
   bulletsLeft: 0
   reloading: 0
   recoilAimReduction: 30
-  aimingOffset: 0
+  aimingOffset: 1
   aimDownSightSpeed: 10
   weaponDrawTime: 10
   sightPos: {x: 0, y: 0, z: 0}
   desiredGunRotation: {x: 0, y: 0, z: 0}
   normalLocalPosition: {x: 0.06, y: -0.22, z: 0.48}
-  aimingLocalPosition: {x: 0, y: -0.144, z: 0.33}
+  aimingLocalPosition: {x: 0, y: 0.142, z: 0.84}
   walkLocalPositon: {x: 0.06, y: -0.235, z: 0.48}
   sprintLocalPosition: {x: 0, y: -0.25, z: 0.4}
   sprintLocalRotation: {x: 15, y: -25, z: 0}
@@ -2221,9 +2222,6 @@ MonoBehaviour:
   defaultWeaponPartList: []
   currentWeaponPartList: []
   weaponPartName: 
-  mainScopeAimPos: {x: 0, y: 0, z: 0}
-  secondaryScopeAimPos: {x: 0, y: 0, z: 0}
-  cantedScopeAimpos: {x: 0, y: 0, z: 0}
 --- !u!1 &6076629769017200434
 GameObject:
   m_ObjectHideFlags: 0

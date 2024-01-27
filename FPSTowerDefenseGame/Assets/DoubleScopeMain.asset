@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26975eef86db6fd49a2ae66064adc072, type: 3}
   m_Name: DoubleScopeMain
   m_EditorClassIdentifier: 
+  scopeMagnification: 1
+  nonZoomedFOV: 60
   bulletSpeed: -200
   bulletDropOffRange: 0
   weaponDamage: 0
@@ -24,5 +26,6 @@ MonoBehaviour:
   drawTimeSpeed: 0
   muzzleFlashSize: 0
   magCapicity: 0
-  partType: 5
+  scopeGunRotation: {x: 0, y: 0, z: 0}
+  partType: 3
   prefab: {fileID: 2425285174299852304, guid: 47fc69e5ab3e7744d828ef9bf4a39f8d, type: 3}

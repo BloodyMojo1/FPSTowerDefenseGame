@@ -150,6 +150,7 @@ public class WeaponComplete : MonoBehaviour
                     SetPart(weaponPartList[i].GetWeaponPartList(partType)[ii]);
                     weaponPart.EquipItem();
 
+
                     break;
                 }
                 else if (weaponPart != weaponPartList[i].GetWeaponPartList(partType)[ii])

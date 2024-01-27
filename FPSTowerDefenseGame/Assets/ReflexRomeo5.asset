@@ -14,18 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scopeMagnification: 1
   nonZoomedFOV: 60
-  bulletSpeed: 0
-  bulletDropOffRange: 0
-  weaponDamage: 0
-  xSpread: 0
-  ySpread: 0
+  bulletSpeed: 10
+  bulletDropOffRange: 10
+  weaponDamage: -5
+  xSpread: -20
+  ySpread: -20
   horizontalRecoil: 0
   verticalRecoil: 0
-  reloadTime: 0
-  aimDownSightSpeed: 0
-  drawTimeSpeed: 0
+  reloadTime: 2
+  aimDownSightSpeed: -3
+  drawTimeSpeed: -2
   muzzleFlashSize: 0
-  magCapicity: 0
+  magCapicity: -5
   scopeGunRotation: {x: 0, y: 0, z: 0}
-  partType: 5
+  partType: 3
   prefab: {fileID: 7014155126532751243, guid: 8cbeff6451ec7194e9c67d684c27158a, type: 3}

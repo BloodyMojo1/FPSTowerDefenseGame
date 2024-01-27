@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26975eef86db6fd49a2ae66064adc072, type: 3}
   m_Name: ScorpionIronSights
   m_EditorClassIdentifier: 
+  scopeMagnification: 1
+  nonZoomedFOV: 60
   bulletSpeed: 0
   bulletDropOffRange: 0
   weaponDamage: 0
@@ -25,5 +27,5 @@ MonoBehaviour:
   muzzleFlashSize: 0
   magCapicity: 0
   scopeGunRotation: {x: 0, y: 0, z: 0}
-  partType: 5
+  partType: 3
   prefab: {fileID: 3203427930988899319, guid: e60c976639fa77144b92a7ac5232e76f, type: 3}
