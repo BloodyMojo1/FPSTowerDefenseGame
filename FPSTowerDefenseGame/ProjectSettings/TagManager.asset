@@ -9,6 +9,9 @@ TagManager:
   - Spawner
   - UI
   - FlockingManager
+  - Waypoint
+  - SplitWaypoint
+  - LastWaypoint
   layers:
   - Default
   - TransparentFX

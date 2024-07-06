@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public enum FlockState
+{
+    Initializing,
+    GlobalWaypoints,
+    Pathway
+}
+
 namespace FlockingSystem
 {
     [System.Serializable]
@@ -11,14 +18,22 @@ namespace FlockingSystem
         public List<FlockingAgent> agents = new List<FlockingAgent>();
         public List<Transform> waypoints = new List<Transform>();
 
-        public bool reachedSplitWaypoint = false;
-        public bool reachedLastWaypoint = false;
-        public bool hasBeenOnPath = false;
+
+
+        public FlockState State { get; set; }
+        public int waypointIndex { get; set; }
+        public FlockPath currentFlockPath { get; set; }
 
         public int SplitWaypointIndex { get; set; }
-        public FlockPath CurrentFlockPath { get; set; }
 
-        public int waypointIndex = 0; // Make it private to control access
+        public bool initialWaypointSet { get; set; }
+        public bool globalWaypointsSet { get; set; }
+        public bool pathwaySet { get; set; }
+        public bool reachedLastWaypoint { get; set; }
+
+
+
+
 
         public Transform GetCurrentWaypoint()
         {
@@ -79,18 +94,6 @@ public class FlockingManager : MonoBehaviour
 
     public List<Transform> globalWaypoints = new List<Transform>();
     public List<FlockPath> flockPaths = new List<FlockPath>();
-
-    void Start()
-    {
-        if (flocks.Count > 0)
-        {
-            InitializeFlocks();
-        }
-        else
-        {
-            Debug.LogWarning("Flocks list is empty.");
-        }
-    }
 
 
     void Update()
@@ -168,19 +171,16 @@ public class FlockingManager : MonoBehaviour
                 if (waypointCollider != null && waypointCollider.bounds.Contains(agent.transform.position))
                 {
                     // Check if the current waypoint is the last one on the path
-                    if (flock.waypointIndex == flock.waypoints.Count - 1 && !flock.reachedSplitWaypoint)
+                    if (flock.waypointIndex == flock.waypoints.Count - 1)
                     {
                         // The flock has reached the last waypoint on the path
-                        flock.reachedSplitWaypoint = !flock.reachedSplitWaypoint;
-                        UpdateWaypointsForFlock(flock);
-                    }
-                    else if (flock.waypointIndex == flock.waypoints.Count - 1 && !flock.reachedLastWaypoint)
-                    {
                         flock.reachedLastWaypoint = true;
                         UpdateWaypointsForFlock(flock);
+                        flock.reachedLastWaypoint = false;
                     }
                     else
                     {
+
                         // Move to the next waypoint
                         flock.MoveToNextWaypoint();
 
@@ -220,19 +220,6 @@ public class FlockingManager : MonoBehaviour
         // Remove any empty flocks
         flocks.RemoveAll(flock => flock.agents.Count == 0);
     }
-
-
-    public void InitializeFlocks()
-    {
-        Debug.Log("InitializeFlocks called.");
-
-        // Iterate through all flocks and assign waypoints
-        foreach (Flock flock in flocks)
-        {
-            UpdateWaypointsForFlock(flock);
-        }
-    }
-
 
     public void RegisterAgent(FlockingAgent agent)
     {
@@ -312,88 +299,125 @@ public class FlockingManager : MonoBehaviour
         flocks.RemoveAll(flock => flock.agents.Count == 0);
     }
 
+    //We need to change this a bit. we Keep they way were obtaining the waypoints, we just need to know if the last waypoint is a split waypoint or end of pathwayway. Split Waypoint > Pathway: Pathway > Split Waypoint
     public void UpdateWaypointsForFlock(Flock flock)
     {
-        // Clear the existing waypoints
+        // Check if the flock is not at the last waypoint, and if so, return without further processing
+        if (!flock.reachedLastWaypoint && flock.initialWaypointSet)
+        {
+            return;
+        }
+
+        switch (flock.State)
+        {
+            case FlockState.Initializing:
+                if (!flock.initialWaypointSet)
+                {
+                    flock.waypoints.AddRange(globalWaypoints.TakeWhile(wp => !wp.name.ToLower().Contains("split")).Concat(new[] { globalWaypoints.FirstOrDefault(wp => wp.name.ToLower().Contains("split")) }));
+                    flock.initialWaypointSet = true;
+                }
+                flock.State = FlockState.Pathway;
+                break;
+
+            case FlockState.GlobalWaypoints:
+                if (!flock.globalWaypointsSet)
+                {
+                    SetupWaypointsAfterLastWaypoint(flock);
+                    flock.globalWaypointsSet = true;  // Set the flag to indicate that the method has been called
+                }
+                // Check for split waypoint separately
+                if (IsSplitWaypoint(flock))
+                {
+                    ResetFlockFlags(flock);
+                    flock.State = FlockState.Pathway;
+                }
+                break;
+
+            case FlockState.Pathway:
+                if (!flock.pathwaySet)
+                {
+                    SetupWaypointsFromSelectedPath(flock);
+                    flock.pathwaySet = true;  // Set the flag to indicate that the method has been called
+                }
+                flock.State = FlockState.GlobalWaypoints;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private bool IsSplitWaypoint(Flock flock)
+    {
+        // Add your logic here to determine if the current waypoint is a split waypoint
+        return flock.waypointIndex == flock.waypoints.Count - 1 && flock.waypoints[flock.waypointIndex].name.ToLower().Contains("split");
+    }
+
+    private void ResetFlockFlags(Flock flock)
+    {
+        flock.pathwaySet = false;
+        flock.globalWaypointsSet = false;
+        flock.reachedLastWaypoint = false;
+
+        // Additional reset logic if needed
+    }
+
+    private void SetupWaypointsAfterLastWaypoint(Flock flock)
+    {
+        // Check if the flock is not at the last waypoint, and if so, return without further processing
+        if (flock.reachedLastWaypoint != true)
+        {
+            return;
+        }
+
+        Debug.Log("Split Not Here");
+
+        // Clear the waypoints list when transitioning to the path
         flock.waypoints.Clear();
 
-        if (flock.reachedLastWaypoint)
+        // Include the last split when there is no split index
+        List<Transform> nextSetOfWaypoints = globalWaypoints.Skip(flock.waypointIndex + 1)
+            .TakeWhile(wp => !wp.name.ToLower().Contains("split"))
+            .Concat(new[] { globalWaypoints[flock.waypointIndex] }) // Include the last split
+            .ToList();
+
+        flock.waypoints.AddRange(nextSetOfWaypoints);
+
+        // Reset necessary flags and indices
+        flock.waypointIndex = 0;
+    }
+
+    private void SetupWaypointsFromSelectedPath(Flock flock)
+    {
+        if (!flock.reachedLastWaypoint)
         {
-            // Find the index of the current split waypoint
-            int currentSplitIndex = globalWaypoints.FindIndex(wp => wp.name.ToLower().Contains("split"));
+            return;
+        }
 
-            if (currentSplitIndex != -1)
+        Transform lastWaypoint = flock.waypoints.LastOrDefault(); // Get the transform of the last waypoint/split
+
+        flock.waypoints.Clear();
+
+        for (int i = 0; i < flockPaths.Count; i++)
+        {
+            FlockPath selectedPath = flockPaths[i];
+
+            // Compare the split waypoint with the last waypoint in flock.waypoints
+            if (selectedPath.splitWaypoint == lastWaypoint)
             {
-                // Get the waypoints between the current and next split, including the last split
-                List<Transform> nextSetOfWaypoints = globalWaypoints.Skip(currentSplitIndex + 1)
-                    .TakeWhile(wp => !wp.name.ToLower().Contains("split"))
-                    .Concat(new[] { globalWaypoints[currentSplitIndex] }) // Include the last split
-                    .ToList();
-
-                // Add the next set of waypoints to the flock
-                flock.waypoints.AddRange(nextSetOfWaypoints);
-
-                // Reset necessary flags and indices
+                ///I need a way to Split up flock and create new flock for the amount of pathWaypoints that there are
+                flock.waypoints.AddRange(selectedPath.pathWaypoints[0].waypoints);
+                
+                // Reset the waypoint index to 0
                 flock.waypointIndex = 0;
-                flock.reachedSplitWaypoint = false;
-                flock.hasBeenOnPath = false;
-                flock.reachedLastWaypoint = false;
-            }
-            else
-            {
-                // Handle the case where the current split waypoint is not found
-                Debug.LogError("Split waypoint not found in globalWaypoints.");
+
+                Debug.Log("Selected FlockPath Index: " + i); // Log the index of the selected FlockPath
+                return; // Exit the method after finding and setting the waypoints
             }
         }
-        else if (flock.reachedSplitWaypoint)
-        {
-            // Choose a specific FlockPath instance from the list (replace 0 with the desired index)
-            FlockPath selectedPath = flockPaths[0];
-            int selectedPathIndex = 1;
 
-            // Assign the chosen FlockPath to the CurrentFlockPath
-            flock.CurrentFlockPath = selectedPath;
-
-            // Add waypoints to the new flock without modifying the original path
-            if(selectedPathIndex < selectedPath.pathWaypoints.Count)
-            {
-                var selectedWaypointList = selectedPath.pathWaypoints[selectedPathIndex];
-                flock.waypoints.AddRange(selectedWaypointList.waypoints);
-            }
-
-
-            // Reset waypointIndex to 0 only if the flock has not been on the path before
-            if (!flock.hasBeenOnPath)
-            {
-                flock.waypointIndex = 0;
-                flock.hasBeenOnPath = true; // Set the flag to true once the flock has been on the path
-            }
-        }
-        else if (flock.CurrentFlockPath != null)
-        {
-            // Use splitWaypointIndex to avoid always starting from the beginning
-            int splitWaypointIndex = flock.CurrentFlockPath.pathWaypoints.FindIndex(wp => wp.waypoints.Any(w => w.name.ToLower().Contains("split")));
-
-            if (splitWaypointIndex != -1)
-            {
-                flock.SplitWaypointIndex = splitWaypointIndex;
-
-                // Add waypoints only if the flock's waypoints list is empty
-                if (flock.waypoints.Count == 0)
-                {
-                    flock.waypoints.AddRange(flock.CurrentFlockPath.pathWaypoints[splitWaypointIndex].waypoints);
-                    flock.waypoints.AddRange(flock.CurrentFlockPath.pathWaypoints[(splitWaypointIndex + 1) % flock.CurrentFlockPath.pathWaypoints.Count].waypoints);
-                }
-            }
-        }
-        else
-        {
-            // CurrentFlockPath is null, use global waypoints only if the flock's waypoints list is empty
-            if (flock.waypoints.Count == 0)
-            {
-                flock.waypoints.AddRange(globalWaypoints.TakeWhile(wp => !wp.name.ToLower().Contains("split")).Concat(new[] { globalWaypoints.FirstOrDefault(wp => wp.name.ToLower().Contains("split")) }));
-            }
-        }
+        // Log a warning if no matching path is found
+        Debug.LogWarning("No matching path found for the last waypoint in the flock.");
     }
 
     public void CreateNewFlock(FlockingAgent agent)
@@ -410,10 +434,7 @@ public class FlockingManager : MonoBehaviour
         {
             newFlock.waypoints.AddRange(originalFlock.waypoints);
             newFlock.waypointIndex = originalFlock.waypointIndex;
-            newFlock.reachedSplitWaypoint = originalFlock.reachedSplitWaypoint;
-            newFlock.reachedLastWaypoint = originalFlock.reachedLastWaypoint;
-            newFlock.hasBeenOnPath = originalFlock.hasBeenOnPath;
-            newFlock.CurrentFlockPath = originalFlock.CurrentFlockPath;
+            newFlock.currentFlockPath = originalFlock.currentFlockPath;
             newFlock.SplitWaypointIndex = originalFlock.SplitWaypointIndex;
         }
 

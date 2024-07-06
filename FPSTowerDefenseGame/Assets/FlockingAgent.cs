@@ -1,3 +1,4 @@
+using FlockingSystem;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -5,11 +6,13 @@ public class FlockingAgent : MonoBehaviour
 {
     private FlockingManager manager;
     private NavMeshAgent agent;
+    public Flock currentFlock;
 
     public float maxSpeed = 5.0f;
     public float currentSpeed;
     public float headingAdjustmentSpeed = 2.0f;
     private Vector3 desiredVelocity;
+
 
     void Start()
     {

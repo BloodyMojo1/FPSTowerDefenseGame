@@ -9,7 +9,6 @@ public class WaveSpawner : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject spawnLocation;
     [SerializeField] private List<Enemy> enemies = new List<Enemy>();
-    [SerializeField] private FlockingManager flockingManager;
 
     [Header("Attributes")]
     [SerializeField] private int baseEnemies;
@@ -49,7 +48,6 @@ public class WaveSpawner : MonoBehaviour
     private void Awake()
     {
         onEnemyDestory.AddListener(EnemyDestoryed);
-        flockingManager = GameObject.FindWithTag("FlockingManager").GetComponent<FlockingManager>();
     }
 
     private void Start()
@@ -171,15 +169,6 @@ public class WaveSpawner : MonoBehaviour
             {
                 Instantiate(enemiesToSpawn[0], spawnPoint, Quaternion.identity);
                 enemySpawned = true;
-
-                if (flockingManager != null && flockingManager.flocks.Count > 0)
-                {
-                    Flock lastFlock = flockingManager.flocks[flockingManager.flocks.Count - 1];
-                    flockingManager.UpdateWaypointsForFlock(lastFlock);
-                }
-
-                // After spawning, initialize flocks if needed
-                flockingManager.InitializeFlocks();
 
                 break;
             }
