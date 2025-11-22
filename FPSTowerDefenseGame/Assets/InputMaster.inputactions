@@ -2,27 +2,101 @@
     "name": "InputMaster",
     "maps": [
         {
-            "name": "Player",
-            "id": "66151803-2c98-41f7-ba4e-6443e4cd9328",
+            "name": "CommonInputs",
+            "id": "cb40d590-0730-4589-9eaf-fc5853cfff8c",
             "actions": [
-                {
-                    "name": "Movment",
-                    "type": "Value",
-                    "id": "8d860ee6-8b7b-49d3-9d38-e5a11587e921",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
                 {
                     "name": "MouseLook",
                     "type": "Value",
-                    "id": "5cd2c60f-3a6a-429c-8fd3-c068ae64ade4",
+                    "id": "61047950-2120-40b1-8ced-89421d858a4c",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
                 },
+                {
+                    "name": "Movment",
+                    "type": "Value",
+                    "id": "70584a3e-d532-4b3d-9c64-faeba40dc12f",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "WASD",
+                    "id": "bd4ec8e5-214f-4ad9-b7da-27a549e19f37",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movment",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "f4cd2051-9892-4f77-bfb9-68deaca35226",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Movment",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "598e0ffe-28b7-494b-af56-3b10adfebc4c",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Movment",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "de3dc507-d733-4315-a20b-00d95e082fac",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Movment",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "a85c1115-7666-4d46-9346-08c835c98070",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Movment",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "02834f24-0b3a-442b-8d40-81f7bebdc012",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "MouseLook",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Player",
+            "id": "66151803-2c98-41f7-ba4e-6443e4cd9328",
+            "actions": [
                 {
                     "name": "Sprint",
                     "type": "Button",
@@ -88,72 +162,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "WASD",
-                    "id": "b22ce564-ea5e-4215-b648-afd033a98b3b",
-                    "path": "2DVector",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Movment",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "up",
-                    "id": "1fc9e484-b7f2-4a85-91bc-90017bc2a81c",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Movment",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "01ad144e-f91c-4130-9cda-965135a33620",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Movment",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "left",
-                    "id": "bfd46609-48a1-4e8d-9e47-80c577129da3",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Movment",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "aa1b242c-1c08-4aa5-bf12-aebd165a1bad",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Movment",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "1cee6669-f7fc-4b41-a680-cebd13c61018",
-                    "path": "<Mouse>/delta",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "MouseLook",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "One Modifier",
                     "id": "b16ef86e-674f-45dc-8440-c8b5ea080911",
@@ -250,6 +258,34 @@
                     "processors": "",
                     "groups": "",
                     "action": "NextSightPos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Vehicle",
+            "id": "b5396d87-51f3-4edd-978f-c6065d2dbf07",
+            "actions": [
+                {
+                    "name": "Breaking",
+                    "type": "Button",
+                    "id": "476ed6c4-06de-45a5-8b8d-7e84deff6409",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "fdc89ad3-e729-41e1-a476-6734e3e1fce4",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Breaking",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

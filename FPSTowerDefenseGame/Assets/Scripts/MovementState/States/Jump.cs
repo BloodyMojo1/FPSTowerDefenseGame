@@ -26,7 +26,7 @@ public class Jump : PlayerBaseState, activeCooldown
     {
         
 
-        if (!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
+        if (!movement.controls.CommonInputs.Movment.IsPressed()) ExitState(movement, movement.idle);
         else ExitState(movement, movement.walk);
         if (movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.sprint);
         if (movement.controls.Player.Crouch.IsPressed()) ExitState(movement, movement.crouch);

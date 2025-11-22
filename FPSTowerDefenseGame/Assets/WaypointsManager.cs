@@ -45,7 +45,7 @@ public class WaypointsManager : MonoBehaviour
         }
     }
 
-    public List<Transform> RetrievePathWaypoints(int pathIndex, FlockingManagerV2.FlockV2 flock)
+    public List<Transform> RetrievePathWaypoints(int pathIndex, FlockingManager.Flock flock)
     {
         List<Transform> waypoints = new List<Transform>();
 

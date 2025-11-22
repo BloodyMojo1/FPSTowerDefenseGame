@@ -15,7 +15,7 @@ public class Sprint : PlayerBaseState
 
         if (movement.controls.Player.Aim.IsPressed()) ExitState(movement, movement.aimingWalk);
         else if (!movement.controls.Player.Sprint.IsPressed()) ExitState(movement, movement.walk);
-        else if (!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
+        else if (!movement.controls.CommonInputs.Movment.IsPressed()) ExitState(movement, movement.idle);
         if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
         if (movement.controls.Player.Crouch.IsPressed() &&  movement.controls.Player.Sprint.IsPressed() && movement.isGrounded) ExitState(movement, movement.sliding);
 

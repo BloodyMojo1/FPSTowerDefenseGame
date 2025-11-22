@@ -190,7 +190,7 @@ public class PlayerStateManager : MonoBehaviour
             currentSpeed = targetSpeed;
         }
 
-        move = controls.Player.Movment.ReadValue<Vector2>(); //Read input values
+        move = controls.CommonInputs.Movment.ReadValue<Vector2>(); //Read input values
 
         movement = ((move.y * transform.forward) + (move.x * transform.right)) * currentSpeed; //seperate the input values into different directions
 

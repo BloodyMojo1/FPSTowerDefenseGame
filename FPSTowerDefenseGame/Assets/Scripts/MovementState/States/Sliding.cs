@@ -37,7 +37,7 @@ public class Sliding : PlayerBaseState, activeCooldown
     {
 
         if (movement.controls.Player.Jump.WasPressedThisFrame()) ExitState(movement, movement.jump);
-        if (!movement.controls.Player.Movment.IsPressed()) ExitState(movement, movement.idle);
+        if (!movement.controls.CommonInputs.Movment.IsPressed()) ExitState(movement, movement.idle);
         if (movement.controls.Player.Crouch.WasReleasedThisFrame()) ExitState(movement, movement.walk);
         if (movement.targetSpeed == movement.crouchSpeed) ExitState(movement, movement.crouch); //Makes player enter crouch state when speed is crouchspeed
 

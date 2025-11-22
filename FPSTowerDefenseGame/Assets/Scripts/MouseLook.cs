@@ -41,7 +41,7 @@ public class MouseLook : MonoBehaviour
             gunDataScript = gameObject.GetComponentInChildren<GunData>();
         }
 
-        mouseLook = controls.Player.MouseLook.ReadValue<Vector2>(); //Get Mouses Values
+        mouseLook = controls.CommonInputs.MouseLook.ReadValue<Vector2>(); //Get Mouses Values
 
         //Calculates recoul pattern
         if(gunDataScript.shooting == false || gunDataScript.reloading)

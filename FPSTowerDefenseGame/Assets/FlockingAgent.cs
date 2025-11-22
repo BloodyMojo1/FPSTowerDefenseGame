@@ -1,103 +1,269 @@
-using FlockingSystem;
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
+using System.Collections.Generic;
 
-public class FlockingAgent : MonoBehaviour
+public enum AgentState
 {
-    private FlockingManager manager;
-    private NavMeshAgent agent;
-    public Flock currentFlock;
+    Idle,
+    FollowingWaypoints,
+    Fighting
+}
 
-    public float maxSpeed = 5.0f;
-    public float currentSpeed;
-    public float headingAdjustmentSpeed = 2.0f;
-    private Vector3 desiredVelocity;
+public class FlockingAgent : MonoBehaviour, IDamageable
+{
+    public UnitHealth targetHealth;
 
+    [SerializeField] private int maxHealth;
+    [SerializeField] private int health;
+    [SerializeField] private int currencyWorth = 50;
 
+    // Public variables for agent parameters
+    public int waypointIndex = 0;
+    public int splitWaypointIndex = 0;
+    public float stuckTimerDuration = 5f;
+    public float minFlockingDistance = 10f;
+    public float baseSpeed = 3.5f;
+    public float maxSpeed = 7f;
+
+    // State machine variables
+    private AgentState currentState;
+    private NavMeshAgent navMeshAgent;
+    private WaypointsManager waypointsManager;
+    private FlockingManager flockingManager;
+
+    // Timer variables
+    private Coroutine stuckTimerCoroutine;
+    private bool isInsideCollider;
+
+    // Should not be seen
+    public List<Transform> waypointList = new List<Transform>();
+
+    private void Awake()
+    {
+        targetHealth = new UnitHealth(health, maxHealth);
+    }
+
+    // Start is called before the first frame update
     void Start()
     {
-        manager = GameObject.FindWithTag("FlockingManager").GetComponent<FlockingManager>();
-        manager.RegisterAgent(this);
-        agent = GetComponent<NavMeshAgent>();
+        // Get references to required components
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        waypointsManager = FindObjectOfType<WaypointsManager>();
+        flockingManager = FindObjectOfType<FlockingManager>();
 
-        agent.stoppingDistance = 0.1f;
-        currentSpeed = maxSpeed;
-
-        // Set the NavMeshAgent speed to a high value initially to avoid slowing down due to NavMeshAgent's acceleration
-        agent.speed = 1000.0f;
+        List<FlockingAgent> agentsList = new List<FlockingAgent> { this };
+        flockingManager.CreateNewFlock(agentsList);
+        currentState = AgentState.FollowingWaypoints;
+        waypointList = waypointsManager.InitializeWaypoints();
     }
 
-    public float GetCurrentSpeed()
-    {
-        return currentSpeed;
-    }
-
-    public void SetSpeed(float speed)
-    {
-        currentSpeed = speed;
-        LimitSpeed(); // Ensure the speed doesn't exceed the maximum allowed speed
-    }
-
-    public void AdjustHeading(Vector3 flockingDirection)
-    {
-        // Normalize the desired flocking direction
-        Vector3 desiredDirection = flockingDirection.normalized;
-
-        // Calculate the desired velocity using currentSpeed instead of maxSpeed
-        desiredVelocity = desiredDirection * currentSpeed;
-
-        // Directly set the agent's velocity
-        agent.velocity = desiredVelocity;
-
-        // Adjust the agent's heading only if it is moving
-        if (agent.velocity.magnitude > 0.1f)
-        {
-            // Gradually adjust the heading
-            Vector3 newDirection = Vector3.Slerp(transform.forward, agent.velocity.normalized, headingAdjustmentSpeed * Time.deltaTime);
-
-            // Calculate the new rotation based on the new direction
-            Quaternion newRotation = Quaternion.LookRotation(newDirection, Vector3.up);
-            transform.rotation = newRotation;
-        }
-    }
-
-    public void LimitSpeed()
-    {
-        // Limit the agent's speed
-        if (agent.velocity.magnitude > maxSpeed)
-        {
-            agent.velocity = agent.velocity.normalized * maxSpeed;
-        }
-    }
-
-    public void MoveTowardsWaypoint(Vector3 targetPosition)
-    {
-        // Set the destination if the agent is not close enough
-        agent.SetDestination(targetPosition);
-
-    }
-
-
+    // Update is called once per frame
     void Update()
     {
-        // Perform the actual movement towards the destination
-        agent.velocity = desiredVelocity;
-
-        // Limit the agent's speed
-        LimitSpeed();
-
-        // Update the current speed
-        currentSpeed = agent.velocity.magnitude;
-
-        // Adjust the agent's heading only if it is moving
-        if (agent.velocity.magnitude > 0.1f)
+        if (targetHealth.Health == 0)
         {
-            // Gradually adjust the heading
-            Vector3 newDirection = Vector3.Slerp(transform.forward, agent.velocity.normalized, headingAdjustmentSpeed * Time.deltaTime);
+            WaveSpawner.onEnemyDestory.Invoke();
 
-            // Calculate the new rotation based on the new direction
-            Quaternion newRotation = Quaternion.LookRotation(newDirection, Vector3.up);
-            transform.rotation = newRotation;
+            // Remove the agent from the flock before destroying it
+            RemoveFromFlock();
+
+            Destroy(gameObject);
+            CurrencyManager.main.IncreaseCurrency(currencyWorth);
+        }
+
+        // State machine logic
+        switch (currentState)
+        {
+            case AgentState.Idle:
+                // Handle idle state
+                break;
+            case AgentState.FollowingWaypoints:
+                FollowWaypoints();
+                break;
+            case AgentState.Fighting:
+                // Handle fighting state
+                break;
+        }
+
+        CheckWaypointIndices();
+    }
+
+    public void TakeDmg(int dmg)
+    {
+        targetHealth.DmgUnit(dmg);
+        Debug.Log(targetHealth.Health);
+    }
+
+    public void Damage(int damageAmount)
+    {
+        TakeDmg(damageAmount);
+    }
+
+    // Method to change the state
+    public void ChangeState(AgentState newState)
+    {
+        currentState = newState;
+    }
+
+    private void FollowWaypoints()
+    {
+        // Check if there are waypoints left to follow
+        if (waypointIndex < waypointList.Count)
+        {
+            FlockingManager.Flock agentsFlock = flockingManager.GetFlockFromAgent(this);
+            //Debug.Log(agentsFlock.agents.Count);
+            if(agentsFlock == null)
+            {
+                return;
+            }
+
+            // Calculate flocking behaviors
+            Vector3 combinedDirection = flockingManager.CalculateFlockingBehaviors(this, agentsFlock);
+
+            // Calculate distance to center of flock
+            Vector3 centerOfFlock = agentsFlock.flockCenter;
+            float distanceToCenter = Vector3.Distance(transform.position, centerOfFlock);
+
+            // Determine if agent is ahead or behind the center
+            float directionFactor = Vector3.Dot(transform.forward, (centerOfFlock - transform.position).normalized);
+
+            // Adjust speed based on position relative to the center
+            float targetSpeed;
+            if (distanceToCenter > minFlockingDistance)
+            {
+                if (directionFactor > 0) // Agent is ahead of the center
+                {
+                    targetSpeed = baseSpeed;
+                }
+                else // Agent is behind the center
+                {
+                    AdjustSpeedForEntireFlock(agentsFlock, baseSpeed);
+                    targetSpeed = maxSpeed;
+                }
+            }
+            else
+            {
+                targetSpeed = baseSpeed; // Agents within the circle maintain consistent speed
+            }
+
+            // Apply target speed to NavMeshAgent
+            navMeshAgent.speed = targetSpeed;
+
+            // Set the destination to the combined direction
+            navMeshAgent.SetDestination(transform.position + combinedDirection);
+        }
+    }
+
+    private void AdjustSpeedForEntireFlock(FlockingManager.Flock flock, float newSpeed)
+    {
+        foreach (FlockingAgent agent in flock.agents)
+        {
+            agent.navMeshAgent.speed = newSpeed;
+        }
+    }
+
+    void CheckWaypointIndices()
+    {
+        if (waypointIndex >= waypointList.Count)
+        {
+            waypointIndex = waypointList.Count - 1;
+        }
+
+        if (splitWaypointIndex >= waypointsManager.flockPaths.Count)
+        {
+            splitWaypointIndex = waypointsManager.flockPaths.Count - 1;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // Start the timer when the agent enters the collider
+        isInsideCollider = true;
+
+        // Check if the triggered object is a waypoint
+        if (other.CompareTag("Waypoint"))
+        {
+            waypointIndex++;
+            // Split waypoint logic
+            Debug.Log("Waypoint Triggered!");
+            // Perform waypoint splitting or any other related actions
+        }
+        else if (other.CompareTag("SplitWaypoint"))
+        {
+            waypointIndex = 0;
+
+            if (splitWaypointIndex >= waypointsManager.flockPaths.Count)
+            {
+                splitWaypointIndex = 0; // Future Note: This should be needed when AI is only pushing forward to obj.
+            }
+            waypointList = waypointsManager.RetrievePathWaypoints(splitWaypointIndex, flockingManager.GetFlockFromAgent(this));
+            splitWaypointIndex++;
+        }
+        else if (other.CompareTag("LastWaypoint"))
+        {
+            // Handle last waypoint logic;
+            waypointIndex = 0;
+            waypointList = waypointsManager.RetrieveGlobalWaypoints();
+        }
+
+        if (isInsideCollider && stuckTimerCoroutine == null)
+        {
+            stuckTimerCoroutine = StartCoroutine(StuckTimer(other));
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        // Stop the timer and reset it when the agent exits the collider
+        isInsideCollider = false;
+
+        if (stuckTimerCoroutine != null)
+        {
+            StopCoroutine(stuckTimerCoroutine);
+            stuckTimerCoroutine = null;
+        }
+    }
+
+    IEnumerator StuckTimer(Collider other)
+    {
+        yield return new WaitForSecondsRealtime(stuckTimerDuration);
+
+        // Decrease waypointIndex if the timer expires
+        if (other.CompareTag("Waypoint"))
+        {
+            waypointIndex++;
+            // Split waypoint logic
+            Debug.Log("Waypoint Triggered!");
+            // Perform waypoint splitting or any other related actions
+        }
+        else if (other.CompareTag("SplitWaypoint"))
+        {
+            waypointIndex = 0;
+
+            if (splitWaypointIndex >= waypointsManager.flockPaths.Count)
+            {
+                splitWaypointIndex = 0; // Future Note: This should be needed when AI is only pushing forward to obj.
+            }
+
+            waypointList = waypointsManager.RetrievePathWaypoints(splitWaypointIndex, flockingManager.GetFlockFromAgent(this));
+            splitWaypointIndex++;
+        }
+        else if (other.CompareTag("LastWaypoint"))
+        {
+            // Handle last waypoint logic;
+            waypointIndex = 0;
+            waypointList = waypointsManager.RetrieveGlobalWaypoints();
+        }
+    }
+
+    // Method to remove the agent from the flock
+    public void RemoveFromFlock()
+    {
+        FlockingManager.Flock agentsFlock = flockingManager.GetFlockFromAgent(this);
+        if (agentsFlock != null)
+        {
+            agentsFlock.agents.Remove(this);
         }
     }
 }

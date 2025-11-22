@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using FlockingSystem;
 
 public class WaveSpawner : MonoBehaviour
 {
@@ -25,6 +24,7 @@ public class WaveSpawner : MonoBehaviour
 
     [Header("Events")]
     public static UnityEvent onEnemyDestory = new UnityEvent();
+    public static UnityEvent onDefencePointDestory = new UnityEvent();
 
     private List<GameObject> enemiesToSpawn = new List<GameObject>();
 
@@ -48,6 +48,7 @@ public class WaveSpawner : MonoBehaviour
     private void Awake()
     {
         onEnemyDestory.AddListener(EnemyDestoryed);
+        onDefencePointDestory.AddListener(ResetWaves);
     }
 
     private void Start()
@@ -178,6 +179,21 @@ public class WaveSpawner : MonoBehaviour
     private int WaveValueAmt()
     {
         return Mathf.RoundToInt(baseEnemies * Mathf.Pow(currentWave, difficultyScalingFator));
+    }
+
+    public void ResetWaves()
+    {
+        StopAllCoroutines();
+
+        currentWave = 1;
+        waveValue = WaveValueAmt();
+        timeSinceLastSpawn = 0f;
+        enemiesAlive = 0;
+        isSpawning = false;
+
+        enemiesToSpawn.Clear();
+
+        StartCoroutine(StartWave());
     }
 
     private void OnDrawGizmos()

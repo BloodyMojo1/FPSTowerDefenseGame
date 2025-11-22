@@ -21,7 +21,7 @@ public class Idle : PlayerBaseState
             movement.SwitchState(movement.sprint);
         }
 
-        if (movement.controls.Player.Movment.IsPressed())
+        if (movement.controls.CommonInputs.Movment.IsPressed())
         {
             movement.SwitchState(movement.walk);
         }

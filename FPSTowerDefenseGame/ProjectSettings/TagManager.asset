@@ -12,6 +12,8 @@ TagManager:
   - Waypoint
   - SplitWaypoint
   - LastWaypoint
+  - SteeringWheel
+  - MotorWheel
   layers:
   - Default
   - TransparentFX

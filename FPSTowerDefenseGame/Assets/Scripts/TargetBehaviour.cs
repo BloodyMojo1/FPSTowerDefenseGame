@@ -41,6 +41,7 @@ public class TargetBehaviour : MonoBehaviour, IDamageable
     public void PlayerTakeDmg(int dmg)
     {
         targetHealth.DmgUnit(dmg);
+        health = targetHealth.Health;
         Debug.Log(targetHealth.Health);
 
     }
